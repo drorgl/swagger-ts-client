@@ -1,6 +1,6 @@
 import * as request from "superagent";
 {{#if imports.types}}
-import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path}}"
+import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path}}";
 {{/if}}
 
 {{#if tag}}
