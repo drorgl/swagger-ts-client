@@ -1,13 +1,7 @@
 import * as path from "path";
-import * as Swagger from "swagger-schema-official";
-import {IOperation, IOperationsGroup, OperationsBuilder} from "../operation/operationsBuilder";
+import {IOperationsGroup} from "../operation/operationsBuilder";
 import {settings} from "../settings";
-import {IType} from "../type/typeBuilder";
 import {AbstractRenderer} from "./renderer";
-
-interface ISwaggerDefinition{
-    [definitionsName: string]: Swagger.Schema;
-}
 
 export class OperationsGroupRender extends AbstractRenderer<IOperationsGroup>{
     constructor(){

@@ -1,14 +1,15 @@
 import * as Swagger from "swagger-schema-official";
 import {ITypeNameParserAst, typeNameParser} from "../parsers/parsers";
 import {settings} from "../settings";
+import { TypeBuilder } from "./typeBuilder";
 
-const typeRefRegx = /#(?:\/[^\/]+)+\/([^\/]+)/;
+const typeRefRegEx = /#(?:\/[^\/]+)+\/([^\/]+)/;
 
 type ReplacerFn = (substring: string, ...args: any[]) => string;
 
 function replaceAll(str: string, searchStr, replacement: ReplacerFn|string){
-    const searchRegx = new RegExp(searchStr.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "g");
-    return str.replace(searchRegx, replacement as any);
+    const searchRegEx = new RegExp(searchStr.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "g");
+    return str.replace(searchRegEx, replacement as any);
 }
 
 function getTypeAliases(): Array<{alias: string, typeDefinition: string}>{
@@ -82,7 +83,14 @@ export class TypeNameInfo{
     }
 
     public static createInlineTypeName(): TypeNameInfo{
-        const ret =  new TypeNameInfo(typeNameParser.parse(`SwaggerInlineType${this.inlineSchemaCount++}`));
+        console.log("generating inline type");
+        let name = "";
+        if (settings && settings.type && settings.type.generatedTypes == "interface"){
+            name = `ISwaggerInlineType${this.inlineSchemaCount++}`;
+        }else{
+            name = `SwaggerInlineType${this.inlineSchemaCount++}`;
+        }
+        const ret =  new TypeNameInfo(typeNameParser.parse(name));
         ret.isInlineType = true;
         return ret;
     }
@@ -110,9 +118,9 @@ export class TypeNameInfo{
         return this.primitiveJsTypes.includes(typename);
     }
 
-    public static getTypeNameInfoFromSchema(schema: Swagger.Schema): TypeNameInfo{
+    public static getTypeNameInfoFromSchema(schema: Swagger.Schema, typeManager: TypeBuilder ): TypeNameInfo{
         if (schema.$ref && schema.$ref[0] === "#"){
-            const match = schema.$ref.match(typeRefRegx);
+            const match = schema.$ref.match(typeRefRegEx);
             if (match){
                 return TypeNameInfo.fromSwaggerTypeName(match[1]);
             }
@@ -122,10 +130,12 @@ export class TypeNameInfo{
         else if (schema.type === "array" && schema.items){
 
             const itemSchema = (schema.items instanceof Array) ? schema.items[0] : schema.items;
-            return TypeNameInfo.fromSwaggerTypeName(`Array<${this.getTypeNameInfoFromSchema(itemSchema).fullTypeName}>`);
+            return TypeNameInfo.fromSwaggerTypeName(`Array<${this.getTypeNameInfoFromSchema(itemSchema, typeManager).fullTypeName}>`);
         }
         else if (schema.type === "object" && schema.properties){
-           return TypeNameInfo.createInlineTypeName();
+            let newInlineTypeName = TypeNameInfo.createInlineTypeName();
+            typeManager.addType(newInlineTypeName.typeName, schema);
+            return newInlineTypeName;
         }
         return TypeNameInfo.fromSwaggerTypeName("any");
 

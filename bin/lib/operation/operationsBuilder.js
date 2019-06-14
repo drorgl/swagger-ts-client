@@ -9,8 +9,8 @@ class OperationsGroup {
         this.operations = [];
         this.importedTypes = [];
     }
-    addImportedTypes(typenames) {
-        typenames.forEach((tn) => {
+    addImportedTypes(typeNames) {
+        typeNames.forEach((tn) => {
             if (!this.importedTypes.includes(tn)) {
                 this.importedTypes.push(tn);
             }
@@ -23,16 +23,6 @@ class OperationsBuilder {
         this.typeManager = typeManager;
         this.opsGroups = new Map();
         this.buildGroups();
-    }
-    getGroup(groupName) {
-        if (this.opsGroups.has(groupName)) {
-            return this.opsGroups.get(groupName);
-        }
-        else {
-            const group = new OperationsGroup(groupName);
-            this.opsGroups.set(groupName, group);
-            return group;
-        }
     }
     buildGroups() {
         logger_1.logger.info("Building Groups...");
@@ -51,6 +41,16 @@ class OperationsBuilder {
     }
     getAllGroups() {
         return [...this.opsGroups.values()];
+    }
+    getGroup(groupName) {
+        if (this.opsGroups.has(groupName)) {
+            return this.opsGroups.get(groupName);
+        }
+        else {
+            const group = new OperationsGroup(groupName);
+            this.opsGroups.set(groupName, group);
+            return group;
+        }
     }
 }
 exports.OperationsBuilder = OperationsBuilder;

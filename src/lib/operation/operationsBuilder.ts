@@ -34,8 +34,8 @@ class OperationsGroup implements IOperationsGroup {
     ) {
 
     }
-    public addImportedTypes(typenames: string[]){
-        typenames.forEach((tn) => {
+    public addImportedTypes(typeNames: string[]){
+        typeNames.forEach((tn) => {
             if (!this.importedTypes.includes(tn)){
                 this.importedTypes.push(tn);
             }

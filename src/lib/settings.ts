@@ -77,8 +77,8 @@ function operationsGroupNameTransformFn(operationName, httpVerb , operation){
         return settings.operations.ungroupedOperationsName;
     }
 }
-function operationsNameTransformFn(operationName, httpVerb , operation){
-   return operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb);
+function operationsNameTransformFn(operationName: string, httpVerb: HttpVerb , operation: Swagger.Operation){
+   return (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName.replace(/[^a-zA-Z0-9]/, "");
 }
 
 export function loadSettings(configFile: string= null, override: ISettings= {}){

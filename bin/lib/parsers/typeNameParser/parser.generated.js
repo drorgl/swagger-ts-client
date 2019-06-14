@@ -42,34 +42,34 @@ peg$SyntaxError.buildMessage = function (expected, found) {
         },
         other: function (expectation) {
             return expectation.description;
-        },
+        }
     };
     function hex(ch) {
         return ch.charCodeAt(0).toString(16).toUpperCase();
     }
     function literalEscape(s) {
         return s
-            .replace(/\\/g, "\\\\")
+            .replace(/\\/g, '\\\\')
             .replace(/"/g, '\\"')
-            .replace(/\0/g, "\\0")
-            .replace(/\t/g, "\\t")
-            .replace(/\n/g, "\\n")
-            .replace(/\r/g, "\\r")
-            .replace(/[\x00-\x0F]/g, function (ch) { return "\\x0" + hex(ch); })
-            .replace(/[\x10-\x1F\x7F-\x9F]/g, function (ch) { return "\\x" + hex(ch); });
+            .replace(/\0/g, '\\0')
+            .replace(/\t/g, '\\t')
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/[\x00-\x0F]/g, function (ch) { return '\\x0' + hex(ch); })
+            .replace(/[\x10-\x1F\x7F-\x9F]/g, function (ch) { return '\\x' + hex(ch); });
     }
     function classEscape(s) {
         return s
-            .replace(/\\/g, "\\\\")
-            .replace(/\]/g, "\\]")
-            .replace(/\^/g, "\\^")
-            .replace(/-/g, "\\-")
-            .replace(/\0/g, "\\0")
-            .replace(/\t/g, "\\t")
-            .replace(/\n/g, "\\n")
-            .replace(/\r/g, "\\r")
-            .replace(/[\x00-\x0F]/g, function (ch) { return "\\x0" + hex(ch); })
-            .replace(/[\x10-\x1F\x7F-\x9F]/g, function (ch) { return "\\x" + hex(ch); });
+            .replace(/\\/g, '\\\\')
+            .replace(/\]/g, '\\]')
+            .replace(/\^/g, '\\^')
+            .replace(/-/g, '\\-')
+            .replace(/\0/g, '\\0')
+            .replace(/\t/g, '\\t')
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/[\x00-\x0F]/g, function (ch) { return '\\x0' + hex(ch); })
+            .replace(/[\x10-\x1F\x7F-\x9F]/g, function (ch) { return '\\x' + hex(ch); });
     }
     function describeExpectation(expectation) {
         return DESCRIBE_EXPECTATION_FNS[expectation.type](expectation);
@@ -111,11 +111,11 @@ function peg$parse(input, options) {
         return new TypeName(partial, typeParams);
     }, peg$c1 = "<", peg$c2 = peg$literalExpectation("<", false), peg$c3 = ">", peg$c4 = peg$literalExpectation(">", false), peg$c5 = function (tp) { return tp; }, peg$c6 = "[", peg$c7 = peg$literalExpectation("[", false), peg$c8 = "]", peg$c9 = peg$literalExpectation("]", false), peg$c10 = ",", peg$c11 = peg$literalExpectation(",", false), peg$c12 = function (type) {
         return type;
-    }, peg$c13 = function (firstTypeParam, typelist) {
+    }, peg$c13 = function (firstTypeParam, typeList) {
         if (firstTypeParam) {
             let ret = [firstTypeParam];
-            if (typelist) {
-                Array.prototype.push.apply(ret, typelist);
+            if (typeList) {
+                Array.prototype.push.apply(ret, typeList);
             }
             return ret;
         }
@@ -173,7 +173,7 @@ function peg$parse(input, options) {
             details = peg$posDetailsCache[p];
             details = {
                 line: details.line,
-                column: details.column,
+                column: details.column
             };
             while (p < pos) {
                 if (input.charCodeAt(p) === 10) {
@@ -195,13 +195,13 @@ function peg$parse(input, options) {
             start: {
                 offset: startPos,
                 line: startPosDetails.line,
-                column: startPosDetails.column,
+                column: startPosDetails.column
             },
             end: {
                 offset: endPos,
                 line: endPosDetails.line,
-                column: endPosDetails.column,
-            },
+                column: endPosDetails.column
+            }
         };
     }
     function peg$fail(expected) {
@@ -230,7 +230,7 @@ function peg$parse(input, options) {
                 s2 = null;
             }
             if (s2 !== peg$FAILED) {
-                s3 = peg$parseGenericTypsList();
+                s3 = peg$parseGenericTypeList();
                 if (s3 === peg$FAILED) {
                     s3 = null;
                 }
@@ -265,7 +265,7 @@ function peg$parse(input, options) {
         }
         return s0;
     }
-    function peg$parseGenericTypsList() {
+    function peg$parseGenericTypeList() {
         var s0, s1, s2, s3;
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 60) {
@@ -570,5 +570,5 @@ function peg$parse(input, options) {
 }
 module.exports = {
     SyntaxError: peg$SyntaxError,
-    parse: peg$parse,
+    parse: peg$parse
 };

@@ -1,4 +1,4 @@
-// gramer for teneric type name
+// grammar for generic type name
 {
   class TypeName{
       constructor(partialName,typeParams){
@@ -32,23 +32,23 @@
       }
   }
 }
-TypeName = partial:Literal w? typeParams:GenericTypsList? w?
+TypeName = partial:Literal w? typeParams:GenericTypeList? w?
 {
    return new TypeName(partial,typeParams);
 }
-GenericTypsList = "<" tp:TypeParams ">"{return tp} / "[" tp:TypeParams "]"{return tp}
+GenericTypeList = "<" tp:TypeParams ">"{return tp} / "[" tp:TypeParams "]"{return tp}
 TypesList = w? "," w? type:TypeName
 {
   return type;
 }
     
-TypeParams = w? firstTypeParam:TypeName  w? typelist:TypesList* 
+TypeParams = w? firstTypeParam:TypeName  w? typeList:TypesList* 
 {
   if(firstTypeParam){
     let ret=[firstTypeParam];
 
-    if(typelist){
-      Array.prototype.push.apply(ret,typelist);
+    if(typeList){
+      Array.prototype.push.apply(ret,typeList);
       }
 
     return ret;

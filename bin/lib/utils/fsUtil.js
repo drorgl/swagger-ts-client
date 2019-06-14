@@ -34,7 +34,7 @@ function createWriteStream(outPath, filename = "") {
     return fs.createWriteStream(outPath);
 }
 exports.createWriteStream = createWriteStream;
-function createIfnotExists(outPath) {
+function createIfNotExists(outPath) {
     return __awaiter(this, void 0, void 0, function* () {
         const parsed = path.parse(outPath);
         if (parsed.ext) {
@@ -45,4 +45,4 @@ function createIfnotExists(outPath) {
         }
     });
 }
-exports.createIfnotExists = createIfnotExists;
+exports.createIfNotExists = createIfNotExists;

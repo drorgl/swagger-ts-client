@@ -1,4 +1,4 @@
-import {IProperty, ISwaggerDefinition, IType} from "./typeBuilder";
+import {IProperty, IType} from "./typeBuilder";
 import {TypeNameInfo} from "./typeNameInfo";
 
 export class Type  implements IType{

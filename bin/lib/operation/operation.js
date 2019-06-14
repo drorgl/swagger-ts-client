@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const settings_1 = require("../settings");
 const typeNameInfo_1 = require("../type/typeNameInfo");
-const nonLitralRegx = /[^_$a-zA-Z0-9\xA0-\uFFFF]/g;
+const nonLiteralRegEx = /[^_$a-zA-Z0-9\xA0-\uFFFF]/g;
 class Operation {
     constructor(httpVerb, url, swOpr, typeManager) {
         this.httpVerb = httpVerb;
@@ -37,7 +37,7 @@ class Operation {
         this.addImportedType(paramType);
         return {
             paramName: param.name,
-            paramDisplayName: param.name.replace(nonLitralRegx, "_"),
+            paramDisplayName: param.name.replace(nonLiteralRegEx, "_"),
             paramType: paramType.fullTypeName,
             inBody: param.in === "body",
             inPath: param.in === "path",

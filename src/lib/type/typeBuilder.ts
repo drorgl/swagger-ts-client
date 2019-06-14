@@ -1,7 +1,6 @@
 import * as changeCase from "change-case";
 import * as Swagger from "swagger-schema-official";
 import {logger} from "../logger";
-import {IOperationsGroup} from "../operation/operationsBuilder";
 import {Type} from "./type";
 import {TypeNameInfo} from "./typeNameInfo";
 
@@ -35,7 +34,7 @@ export class TypeBuilder{
     }
 
     public getTypeNameInfo(schema: Swagger.BaseSchema): TypeNameInfo{
-        return TypeNameInfo.getTypeNameInfoFromSchema(schema);
+        return TypeNameInfo.getTypeNameInfoFromSchema(schema, this);
     }
     public getTypeNameInfoParameter(param: Swagger.Parameter){
         const schema = isBodyParam(param) ? (param as Swagger.BodyParameter).schema : param;
@@ -46,12 +45,16 @@ export class TypeBuilder{
     public getAllTypes(): IType[] {
         return [...this.typeCache.values()];
     }
+
+    public addType(swaggerTypeName: string, swaggerType: Swagger.Schema){
+        this.typeCache.set(swaggerTypeName, this.buildType(swaggerTypeName, swaggerType));
+    }
     private buildTypeCache(){
         logger.info("Building Types..");
         Object.keys(this.definition).forEach((swaggerTypeName) => {
             const typename = this.getTypeName(swaggerTypeName);
             if (!this.typeCache.has(typename)){
-                const type = this.buildTypeFromDefinetion(swaggerTypeName);
+                const type = this.buildTypeFromDefinition(swaggerTypeName);
                 this.typeCache.set(typename, type);
             }
         });
@@ -61,14 +64,8 @@ export class TypeBuilder{
         });
 
     }
-    private  buildTypeFromDefinetion(swaggerTypeName: string): IType {
 
-        const swaggerType = this.definition[swaggerTypeName];
-        return this.buildType(swaggerTypeName, swaggerType);
-
-    }
     private  buildType(swaggerTypeName: string, swaggerType: Swagger.Schema): IType {
-
        // let fullTypeName=this.splitGeneric(swaggerTypeName);
         const type = new Type(swaggerTypeName);
 
@@ -76,7 +73,7 @@ export class TypeBuilder{
         for (const propertyName in properties) {
             if (properties.hasOwnProperty(propertyName)) {
                 const prop = properties[propertyName];
-                let typeName = TypeNameInfo.getTypeNameInfoFromSchema(prop);
+                let typeName = TypeNameInfo.getTypeNameInfoFromSchema(prop, this);
                 if (typeName.isInlineType){
                     typeName = TypeNameInfo.fromSwaggerTypeName(type.typeNameInfo.partialTypeName + changeCase.pascalCase(propertyName));
                     this.inlineTypes.set(typeName.fullTypeName, prop);
@@ -85,6 +82,12 @@ export class TypeBuilder{
             }
         }
         return type;
+    }
+    private  buildTypeFromDefinition(swaggerTypeName: string): IType {
+
+        const swaggerType = this.definition[swaggerTypeName];
+        return this.buildType(swaggerTypeName, swaggerType);
+
     }
 
 }

@@ -21,8 +21,8 @@ function wrap(func: Func): asyncFunc {
 
 type asyncMkdirp = (path: fs.PathLike, mode?: number | string | undefined | null) => Promise<void>;
 const mkdir: asyncMkdirp = wrap(mkdirp);
-export type asyncreadFile = (path: fs.PathLike | number, options: { encoding?: null; flag?: string; } | string | undefined | null ) => Promise<string>;
-export const readFile: asyncreadFile = wrap(fs.readFile);
+export type asyncReadFile = (path: fs.PathLike | number, options: { encoding?: null; flag?: string; } | string | undefined | null ) => Promise<string>;
+export const readFile: asyncReadFile = wrap(fs.readFile);
 
 export function createWriteStream(outPath: string, filename: string= "") {
     if (filename){
@@ -31,7 +31,7 @@ export function createWriteStream(outPath: string, filename: string= "") {
     return fs.createWriteStream(outPath);
 }
 
-export async function createIfnotExists(outPath: string){
+export async function createIfNotExists(outPath: string){
     const parsed = path.parse(outPath);
     if (parsed.ext){
         outPath = parsed.dir;

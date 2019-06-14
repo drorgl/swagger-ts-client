@@ -12,7 +12,7 @@ function getArgs() {
         .option("-c, --config <path/to/config.file.js>", "use the configuration file from the path")
         .option("-s, --swaggerFile <path/to/swagger.doc.json>", "use swagger definition from the path")
         .option("-t, --typesOut <path/to/generate/types.ts>", "generate output types at the location")
-        .option("-u, --url <http://url.to.swaggerDef/swagger/v1/docs>", "guse url as swagger source")
+        .option("-u, --url <http://url.to.swaggerDef/swagger/v1/docs>", "use url as swagger source")
         .option("-o, --operationsOut <path/to/generate/operations/>", "generate operations at the location")
         .parse(process.argv);
     const settings = {};

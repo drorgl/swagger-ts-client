@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const changeCase = require("change-case");
 const os = require("os");
 const parsers_1 = require("../parsers/parsers");
-const compiledCach = new Map();
-function complieFilterfn(predicate) {
+const compiledCache = new Map();
+function compileFilterFn(predicate) {
     if (predicate) {
-        if (compiledCach.has(predicate)) {
-            return compiledCach.get(predicate);
+        if (compiledCache.has(predicate)) {
+            return compiledCache.get(predicate);
         }
         else {
             const parseResult = parsers_1.lambdaParser.parse(predicate);
@@ -20,27 +20,27 @@ function complieFilterfn(predicate) {
     }
 }
 function filterListHelper(...args) {
-    let context = args.shift(), options = args.pop(), fliter = args.shift(), take = args.shift() || -1;
-    if (context && context instanceof Array && fliter) {
+    let context = args.shift(), options = args.pop(), filter = args.shift(), take = args.shift() || -1;
+    if (context && context instanceof Array && filter) {
         /* tslint:disable:triple-equals */
-        if (take == -1) // using == beacuse take can be string
+        if (take == -1) // using == because take can be string
          {
             take = context.length;
         }
         /* tslint:enable:triple-equals */
-        if (fliter) {
-            const fliterFn = complieFilterfn(fliter);
-            if (fliterFn) {
+        if (filter) {
+            const filterFn = compileFilterFn(filter);
+            if (filterFn) {
                 let ret = "";
                 for (let i = 0; i < take; i++) {
-                    if (fliterFn(context[i], i, context)) {
+                    if (filterFn(context[i], i, context)) {
                         ret = ret + options.fn(context[i]);
                     }
                 }
                 return ret;
             }
             else {
-                throw new Error(`${fliter} is not valid filter expressaion`);
+                throw new Error(`${filter} is not valid filter expression`);
             }
         }
         else {
@@ -53,12 +53,12 @@ function filterListHelper(...args) {
 }
 exports.filterListHelper = filterListHelper;
 function someHelper(...args) {
-    const context = args.shift(), options = args.pop(), fliter = args.shift();
-    if (context && context instanceof Array && fliter) {
-        if (fliter) {
-            const fliterFn = complieFilterfn(fliter);
-            if (fliterFn) {
-                if (context.some(fliterFn)) {
+    const context = args.shift(), options = args.pop(), filter = args.shift();
+    if (context && context instanceof Array && filter) {
+        if (filter) {
+            const filterFn = compileFilterFn(filter);
+            if (filterFn) {
+                if (context.some(filterFn)) {
                     return options.fn(context);
                 }
                 else {
@@ -66,7 +66,7 @@ function someHelper(...args) {
                 }
             }
             else {
-                throw new Error(`${fliter} is not valid filter expressaion`);
+                throw new Error(`${filter} is not valid filter expression`);
             }
         }
         else {
@@ -82,19 +82,19 @@ function joinListHelper(...args) {
     const context = args.shift();
     const options = args.pop();
     if (context && context instanceof Array) {
-        let [seperator, filter] = [...args];
-        seperator = seperator ? seperator.replace(/\\n/g, os.EOL) : ",";
+        let [separator, filter] = [...args];
+        separator = separator ? separator.replace(/\\n/g, os.EOL) : ",";
         let filteredArray = context;
         if (filter) {
-            const fliterFn = complieFilterfn(filter);
-            if (fliterFn) {
-                filteredArray = context.filter(fliterFn);
+            const filterFn = compileFilterFn(filter);
+            if (filterFn) {
+                filteredArray = context.filter(filterFn);
             }
             else {
-                throw new Error(`${fliterFn} is not valid filter expressaion`);
+                throw new Error(`${filterFn} is not valid filter expression`);
             }
         }
-        return filteredArray.map((c) => options.fn(c)).join(seperator);
+        return filteredArray.map((c) => options.fn(c)).join(separator);
     }
     else {
         return "";

@@ -37,7 +37,7 @@ function operationsGroupNameTransformFn(operationName, httpVerb, operation) {
     }
 }
 function operationsNameTransformFn(operationName, httpVerb, operation) {
-    return operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb);
+    return (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName.replace(/[^a-zA-Z0-9]/, "");
 }
 function loadSettings(configFile = null, override = {}) {
     if (configFile) {

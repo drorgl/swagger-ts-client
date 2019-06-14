@@ -1,5 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as Swagger from "swagger-schema-official";
 import {logger} from "./logger";
 import { OperationsBuilder } from "./operation/operationsBuilder";
@@ -8,7 +6,7 @@ import { TypesDefinitionRender } from "./renderer/typesDefinitionRender";
 import { ISettings, loadSettings, settings } from "./settings";
 import { getProvider } from "./swaggerProvider/swaggerProvider";
 import { TypeBuilder } from "./type/typeBuilder";
-import { createIfnotExists, createWriteStream } from "./utils/fsUtil";
+import { createIfNotExists, createWriteStream } from "./utils/fsUtil";
 export class TsFromSwagger {
     constructor(configFile: string = null, override: ISettings = {}) {
         logger.info(`Starting...`);
@@ -93,12 +91,12 @@ export class TsFromSwagger {
         const swagger = await this.getSwagger();
         this.adjustSwaggerPaths(swagger);
         const typeManager = new TypeBuilder(swagger.definitions);
-        await this.renderTypes(typeManager);
         await this.renderOperationGroups(swagger.paths, typeManager);
+        await this.renderTypes(typeManager);
     }
     private async createOutDirs() {
-        await createIfnotExists(settings.type.outPutPath);
-        await createIfnotExists(settings.operations.outPutPath);
+        await createIfNotExists(settings.type.outPutPath);
+        await createIfNotExists(settings.operations.outPutPath);
     }
 
     private async renderTypes(typeManager) {
@@ -120,6 +118,7 @@ export class TsFromSwagger {
             const opsName = settings.operations.outFileNameTransformFn(g.operationsGroupName);
             const stream = createWriteStream(settings.operations.outPutPath, opsName );
             logger.info(`Writing Operation ${opsName}  to ${settings.operations.outPutPath}`);
+
             await renderer.render(stream, g);
             stream.end();
         });
