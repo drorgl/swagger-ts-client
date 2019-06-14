@@ -10,6 +10,9 @@ import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path
 {{/if}}
 
 export class {{operationGroup.operationsGroupName}} {
+    constructor(private baseUrl:string){
+
+    }
 
     {{#each operationGroup.operations}}
     public {{operationName}}({{#joinList operationParams}} {{paramDisplayName}}:{{paramType}} {{/joinList}}):Promise<{{responsesType}}>{
@@ -23,7 +26,7 @@ export class {{operationGroup.operationsGroupName}} {
         {{/if}}
         return new Promise<{{responsesType}}>((resolve, reject) => {
             request
-            .{{httpVerb}}(`{{url}}`)
+            .{{httpVerb}}(this.baseUrl + `{{url}}`)
             {{#some operationParams "op=>(!op.inBody && !op.inPath)"}}
             .query(params)
             {{/some}}
