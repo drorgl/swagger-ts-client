@@ -1,14 +1,42 @@
-Swagger-ts-client is a tool that generate TypeScript types and  http client from Swagger ([open api](https://www.openapis.org/)). The code generation is highly configurable through a configuration file. Refer [Configuration section](#Configuration) for more details.
+# Notice
+This is a forked project of [swagger-ts-client](https://github.com/kjayasa/swagger-ts-client) by Jayasanker Karakulath, with the following modifications:
+- add support for inline types
+- interfaces are prefixed with I
+- add baseUrl with default
+- Change Service Name to pascal casing
+- add operations name filter so it will always be a valid function name
+- add rendering of info section
+- add handling of parent properties
+- add anonymous parameters
+- add function parameter camel casing
+- add handlebars helpers for eq, ne, lt, gt, lte, gte, and, or
+- add yaml support
+- add array support
+- add jsdoc comments to generated code
+- add sample generation (as a crude testing tool), no validations.
+- add support for ibm endpoint
+- add definition ref
+- add word-wrap to template
+- add header support
+- add cli parameter for setting the ungrouped APIs
 
-The generated code can completely controlled by using  [Handlebar](http://handlebarsjs.com/) templates.Refer template section for more section. The default template generates http clients based on the [SuperAgent](http://visionmedia.github.io/superagent/) library.
-
-Swagger-ts-client can import swagger definition from multiple sources using provider plugins.The default provider imports JSON formated swagger definition file from the file system.There is also an Http provider built in, that can be configured to import swagger from a url.
+### NOTE: This is a toy project - use as your own risk!
 
 # Alternatives
 While I worked on fixing some issues with this project, I've also checked out a few alternatives which work better, I've decided not to scrap the modifications but rather offer them with a list of alternatives:
 + autorest - a project from microsoft, specifically there is [autorest-typescript](https://github.com/azure/autorest.typescript)
 + [Swagger Generator](https://generator.swagger.io/) and [Swagger Editor](https://editor.swagger.io/)
 
+## Addendum to alternatives
+I've continued working on this project after I've encountered the below problems with above alternatives. I apologize in advance for not having the time to handle requests and bugs, therefore the issue tracker will stay disabled.
++ Swagger Generator has some issues with OpenAPI v2 with referenced headers
++ autorest is having problems with methods lacking OperationId
+
+Swagger-ts-client is a tool that generate TypeScript types and  http client from Swagger ([open api](https://www.openapis.org/)). The code generation is highly configurable through a configuration file. Refer [Configuration section](#Configuration) for more details.
+
+The generated code can completely controlled by using  [Handlebar](http://handlebarsjs.com/) templates.Refer template section for more section. The default template generates http clients based on the [SuperAgent](http://visionmedia.github.io/superagent/) library.
+
+Swagger-ts-client can import swagger definition from multiple sources using provider plugins.The default provider imports JSON formated swagger definition file from the file system.There is also an Http provider built in, that can be configured to import swagger from a url.
 
 ## Some differences form other tools for the same purpose
 * provides a lot of control in code generation.
@@ -222,6 +250,7 @@ There are some options that can be used to change
 | -t 	| --typesOut ./path/to/generate/types.ts>          	| generate output types at the location    	|
 | -u 	| --url http://url.to.swaggerDef/swagger/v1/docs	| use url as swagger source                	|
 | -o 	| --operationsOut ./path/to/generate/operations/   	| generate operations at the location      	|
+| -g    | --ungroupedName Operations                        | sets default for ungrouped functions      |
 | -h 	| --help                                           	| output usage information                 	|
 
 
@@ -231,6 +260,7 @@ There are some options that can be used to change
 
 # TODO
 [ ] Implement allOf (petstore-expanded.v2.json)
+[ ] Unit Testing
 
 # Build 
 Clone or download from git hub.

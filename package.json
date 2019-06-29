@@ -20,8 +20,8 @@
     "build:dev": "tsc",
     "build:dryrun": "tsc -noEmit",
     "build": "npm run build:parsers && tsc --sourceMap false",
-    "build:lambdaParser": "pegjs -o ./src/lib/parsers/lambdaParser/parser.generated.js ./src/lib/parsers/lambdaParser/grammer.pegjs",
-    "build:typeParser": "pegjs -o ./src/lib/parsers/typeNameParser/parser.generated.js ./src/lib/parsers/typeNameParser/grammer.pegjs",
+    "build:lambdaParser": "pegjs -o ./src/lib/parsers/lambdaParser/parser.generated.js ./src/lib/parsers/lambdaParser/grammar.pegjs",
+    "build:typeParser": "pegjs -o ./src/lib/parsers/typeNameParser/parser.generated.js ./src/lib/parsers/typeNameParser/grammar.pegjs",
     "build:parsers": "npm run build:lambdaParser && npm run build:typeParser",
     "lint": "tslint --fix --project ./tsconfig.json --format verbose"
   },
@@ -40,13 +40,14 @@
     "wordwrap": "^1.0.0"
   },
   "devDependencies": {
-    "@types/wordwrap": "^1.0.0",
     "@types/chai": "^4.1.7",
     "@types/commander": "^2.12.2",
     "@types/js-yaml": "^3.12.1",
     "@types/mocha": "^5.2.7",
     "@types/node": "^8.0.21",
+    "@types/superagent": "^4.1.1",
     "@types/swagger-schema-official": "^2.0.5",
+    "@types/wordwrap": "^1.0.0",
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
     "pegjs": "^0.10.0",

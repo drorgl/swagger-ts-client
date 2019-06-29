@@ -1,10 +1,13 @@
 {
     "cSpell.words": [
+        "Detailsv",
         "Swashbuckle",
         "TUKABCDEFGHIJLMNOPQRSVWXYZ",
+        "Versionsv",
         "YALM",
         "autorest",
         "codegen",
+        "dbaas",
         "drorgl",
         "dryrun",
         "gitdev",
@@ -13,6 +16,7 @@
         "pegjs",
         "petstore",
         "superagent",
-        "ungrouped"
+        "ungrouped",
+        "wordwrap"
     ]
 }

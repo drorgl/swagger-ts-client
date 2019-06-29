@@ -79,7 +79,8 @@ export class TypeBuilder{
     private  buildType(swaggerTypeName: string, swaggerType: Swagger.Schema): IType {
        // let fullTypeName=this.splitGeneric(swaggerTypeName);
        if (swaggerType.type == "array"){
-           return Type.fromSwaggerSchema(swaggerTypeName, swaggerType, this);
+            const typeForName = Type.fromSwaggerTypeName(swaggerTypeName);
+            return Type.fromSwaggerSchema(typeForName.typeName, swaggerType, this);
        }
 
        const type = Type.fromSwaggerTypeName(swaggerTypeName);
