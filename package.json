@@ -18,7 +18,7 @@
     "start": "ts-node src/main.ts",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "build:dev": "tsc",
-    "build:dryrun" : "tsc -noEmit",
+    "build:dryrun": "tsc -noEmit",
     "build": "tsc --sourceMap false",
     "build:lambdaParser": "pegjs -o ./src/lib/parsers/lambdaParser/parser.generated.js ./src/lib/parsers/lambdaParser/grammer.pegjs",
     "build:typeParser": "pegjs -o ./src/lib/parsers/typeNameParser/parser.generated.js ./src/lib/parsers/typeNameParser/grammer.pegjs",
@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
+    "@types/commander": "^2.12.2",
     "@types/js-yaml": "^3.12.1",
     "@types/mocha": "^5.2.7",
     "@types/node": "^8.0.21",
