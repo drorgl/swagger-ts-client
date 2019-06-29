@@ -1,4 +1,4 @@
-import * as request from "superagent";
+import * as superAgentRequest from "superagent";
 {{#if imports.types}}
 import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path}}";
 {{/if}}
@@ -6,11 +6,11 @@ import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path
 {{#if info}}
 /*
     {{info.title}} {{info.version}}
-    {{info.description}}
+    {{wrap '    '  info.description}}
     {{#if info.terms}}
 
     Terms:
-    {{info.terms}}
+    {{wrap '    ' info.terms}}
     {{/if}}
     {{#if info.contact}}
     
@@ -42,26 +42,31 @@ export class {{operationGroup.operationsGroupName}} {
     {{#each operationGroup.operations}}
     {{#if swOpr.summary}}
     /**
-     * {{swOpr.summary}}
-    {{#each swOpr.parameters}}
-     * @param { {{#if this.type}}{{this.type}}{{else}}{{this.name}}{{/if}} } {{this.name}} {{this.description}}
+     * {{wrap '     * ' swOpr.summary}}
+    {{#each operationParams}}
+     * @param { {{paramType}} } {{this.schema.name}} {{wrap '     *        '  this.schema.description}}
     {{/each}}
      */
     {{/if}}
-    public {{operationName}}({{#joinList operationParams}} {{paramDisplayName}}:{{paramType}} {{/joinList}}):Promise<{{responsesType}}>{
+    public {{operationName}}(
+        {{#joinList operationParams ",\n        "}} {{paramDisplayName}}:{{paramType}} {{/joinList}}):Promise<{{responsesType}}>{
         {{#if operationParams}}
-            {{#some operationParams "op=>(!op.inBody && !op.inPath)"}}
+            {{#some operationParams "op=>(!op.inBody && !op.inPath && !op.inHeader)"}}
         const params = {
-            {{#joinList this ",\n" "op=>(!op.inBody && !op.inPath)"}}
+            {{#joinList this ",\n" "op=>(!op.inBody && !op.inPath && !op.inHeader)"}}
             "{{paramName}}":{{paramDisplayName}}{{/joinList}}
         };
             {{/some}}
         {{/if}}
         return new Promise<{{responsesType}}>((resolve, reject) => {
-            request
+            superAgentRequest
             .{{httpVerb}}(this.baseUrl + `{{operationUrl}}`)
-            {{#some operationParams "op=>(!op.inBody && !op.inPath)"}}
+            {{#some operationParams "op=>(!op.inBody && !op.inPath && !op.inHeader)"}}
             .query(params)
+            {{/some}}
+            {{#some operationParams "op=>(op.inHeader)"}}
+            {{#joinList this "\n" "op=>(op.inHeader)"}}
+            .set("{{paramName}}",{{paramDisplayName}}){{/joinList}}
             {{/some}}
             {{#filterList operationParams "op=>op.inBody" "1"}}
             .send({{paramDisplayName}})

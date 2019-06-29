@@ -52,6 +52,10 @@ export class TypeBuilder{
     public addType(swaggerTypeName: string, swaggerType: Swagger.Schema){
         this.typeCache.set(swaggerTypeName, this.buildType(swaggerTypeName, swaggerType));
     }
+
+    public getTypeSchema(swaggerTypeName: string): Swagger.Schema{
+        return this.definition[swaggerTypeName];
+    }
     private buildTypeCache(){
         logger.info("Building Types..");
         if (!this.definition){

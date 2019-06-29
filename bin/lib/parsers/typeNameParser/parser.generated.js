@@ -122,7 +122,7 @@ function peg$parse(input, options) {
         else {
             return null;
         }
-    }, peg$c14 = /^[A-Za-z0-9$_]/, peg$c15 = peg$classExpectation([["A", "Z"], ["a", "z"], ["0", "9"], "$", "_"], false, false), peg$c16 = function () {
+    }, peg$c14 = /^[A-Za-z0-9$_\-]/, peg$c15 = peg$classExpectation([["A", "Z"], ["a", "z"], ["0", "9"], "$", "_", "-"], false, false), peg$c16 = function () {
         return text();
     }, peg$c17 = /^[" "\t]/, peg$c18 = peg$classExpectation(["\"", " ", "\"", "\t"], false, false), peg$currPos = 0, peg$savedPos = 0, peg$posDetailsCache = [{ line: 1, column: 1 }], peg$maxFailPos = 0, peg$maxFailExpected = [], peg$silentFails = 0, peg$result;
     if ("startRule" in options) {

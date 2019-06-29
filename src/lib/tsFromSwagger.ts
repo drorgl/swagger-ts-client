@@ -25,6 +25,13 @@ export class TsFromSwagger {
         const host: string = swagger.host;
         const schemes = swagger.schemes;
 
+        if (swagger["x-ibm-endpoints"]){
+            let ibmEndpoints = swagger["x-ibm-endpoints"];
+            if (ibmEndpoints[0] && ibmEndpoints[0].endpointUrl){
+                return ibmEndpoints[0].endpointUrl;
+            }
+        }
+
         if (base && base.endsWith("/")) {
             let notSlashIndex = base.length - base.split("").reverse().findIndex((v) => v != "/");
             base = base.substring(0, notSlashIndex);
@@ -100,7 +107,7 @@ export class TsFromSwagger {
         let basePath = this.getBasePath(swagger);
         let info = swagger.info;
         const typeManager = new TypeBuilder(swagger.definitions);
-        await this.renderOperationGroups(basePath, info, swagger.paths, typeManager);
+        await this.renderOperationGroups(basePath, info, swagger.paths, swagger.parameters, typeManager);
         await this.renderTypes(info, typeManager);
     }
     private async createOutDirs() {
@@ -122,10 +129,12 @@ export class TsFromSwagger {
         basePath: string,
         info: Swagger.Info,
         paths: {
-        [pathName: string]: Swagger.Path,
-    }, typeManager) {
+            [pathName: string]: Swagger.Path,
+        },
+        generalParameters: {[parameterName: string]: Swagger.BodyParameter|Swagger.QueryParameter},
+        typeManager) {
         const renderer = new OperationsGroupRender(),
-            opsBuilder = new OperationsBuilder(paths, typeManager);
+            opsBuilder = new OperationsBuilder(paths, generalParameters, typeManager);
         opsBuilder.getAllGroups().forEach(async (g) => {
             const opsName = settings.operations.outFileNameTransformFn(g.operationsGroupName);
             const stream = createWriteStream(settings.operations.outPutPath, opsName );

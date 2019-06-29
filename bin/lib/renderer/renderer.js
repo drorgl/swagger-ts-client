@@ -9,12 +9,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const handlebars = require("handlebars");
+const wordwrap = require("wordwrap");
 const fsUtil_1 = require("../utils/fsUtil");
 const helpers_1 = require("./helpers");
 handlebars.registerHelper("joinList", helpers_1.joinListHelper);
 handlebars.registerHelper("filterList", helpers_1.filterListHelper);
 handlebars.registerHelper("some", helpers_1.someHelper);
 handlebars.registerHelper("changeCase", helpers_1.changeCaseHelper);
+handlebars.registerHelper("wrap", (indent, val) => {
+    if (!val) {
+        return "";
+    }
+    let wrapped = wordwrap(60)(val);
+    return wrapped.replace(/\n/g, "\n" + indent);
+});
 handlebars.registerHelper({
     eq: (v1, v2) => {
         return v1 === v2;
@@ -71,7 +79,7 @@ class AbstractRenderer {
                 stream.write(compiled);
             }
             catch (e) {
-                throw new Error(`Error compiling ${stream.path} : obj "${obj} \n ${e}`);
+                throw new Error(`Error rendering ${stream.path} : obj "${obj} \n ${e}`);
             }
         });
     }

@@ -36,6 +36,12 @@ class TsFromSwagger {
         let base = swagger.basePath;
         const host = swagger.host;
         const schemes = swagger.schemes;
+        if (swagger["x-ibm-endpoints"]) {
+            let ibmEndpoints = swagger["x-ibm-endpoints"];
+            if (ibmEndpoints[0] && ibmEndpoints[0].endpointUrl) {
+                return ibmEndpoints[0].endpointUrl;
+            }
+        }
         if (base && base.endsWith("/")) {
             let notSlashIndex = base.length - base.split("").reverse().findIndex((v) => v != "/");
             base = base.substring(0, notSlashIndex);
@@ -101,7 +107,7 @@ class TsFromSwagger {
             let basePath = this.getBasePath(swagger);
             let info = swagger.info;
             const typeManager = new typeBuilder_1.TypeBuilder(swagger.definitions);
-            yield this.renderOperationGroups(basePath, info, swagger.paths, typeManager);
+            yield this.renderOperationGroups(basePath, info, swagger.paths, swagger.parameters, typeManager);
             yield this.renderTypes(info, typeManager);
         });
     }
@@ -119,9 +125,9 @@ class TsFromSwagger {
             stream.end();
         });
     }
-    renderOperationGroups(basePath, info, paths, typeManager) {
+    renderOperationGroups(basePath, info, paths, generalParameters, typeManager) {
         return __awaiter(this, void 0, void 0, function* () {
-            const renderer = new operationsGroupRenderer_1.OperationsGroupRender(), opsBuilder = new operationsBuilder_1.OperationsBuilder(paths, typeManager);
+            const renderer = new operationsGroupRenderer_1.OperationsGroupRender(), opsBuilder = new operationsBuilder_1.OperationsBuilder(paths, generalParameters, typeManager);
             opsBuilder.getAllGroups().forEach((g) => __awaiter(this, void 0, void 0, function* () {
                 const opsName = settings_1.settings.operations.outFileNameTransformFn(g.operationsGroupName);
                 const stream = fsUtil_1.createWriteStream(settings_1.settings.operations.outPutPath, opsName);

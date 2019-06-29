@@ -28,6 +28,7 @@
   "author": "kjayasa <gitdev@jayk.me>",
   "license": "ISC",
   "dependencies": {
+    
     "change-case": "3.1.0",
     "commander": "2.19.0",
     "handlebars": "4.1.1",
@@ -36,9 +37,11 @@
     "request": "2.88.0",
     "request-promise-native": "1.0.7",
     "swagger-schema-official": "^2.0.0-bab6bed",
-    "ts-node": "^8.2.0"
+    "ts-node": "^8.2.0",
+    "wordwrap": "^1.0.0"
   },
   "devDependencies": {
+    "@types/wordwrap": "^1.0.0",
     "@types/chai": "^4.1.7",
     "@types/commander": "^2.12.2",
     "@types/js-yaml": "^3.12.1",

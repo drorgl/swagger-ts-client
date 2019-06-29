@@ -29,6 +29,9 @@ class TypeBuilder {
     addType(swaggerTypeName, swaggerType) {
         this.typeCache.set(swaggerTypeName, this.buildType(swaggerTypeName, swaggerType));
     }
+    getTypeSchema(swaggerTypeName) {
+        return this.definition[swaggerTypeName];
+    }
     buildTypeCache() {
         logger_1.logger.info("Building Types..");
         if (!this.definition) {

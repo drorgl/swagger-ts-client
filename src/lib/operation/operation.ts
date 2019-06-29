@@ -1,5 +1,6 @@
 import * as Swagger from "swagger-schema-official";
 import * as url from "url";
+import { typeNameParser } from "../parsers/parsers";
 import { changeCaseHelper } from "../renderer/helpers";
 import {HttpVerb, settings} from "../settings";
 import {TypeBuilder} from "../type/typeBuilder";
@@ -15,7 +16,13 @@ export class Operation implements IOperation {
     public importedTypes: string[] = [];
     private anonymousParamNameCount = 1;
 
-    constructor( public httpVerb: string , public operationUrl: string, private swOpr: Swagger.Operation, private extraOprParameters: Swagger.Parameter[] , private typeManager: TypeBuilder ) {
+    constructor(
+        public httpVerb: string ,
+        public operationUrl: string,
+        private swOpr: Swagger.Operation,
+        private extraOprParameters: Swagger.Parameter[] ,
+        private generalParameters: {[parameterName: string]: Swagger.BodyParameter|Swagger.QueryParameter},
+        private typeManager: TypeBuilder ) {
         this.operationUrl = url.parse(this.operationUrl).path;
         this.operationName = settings.operations.operationsNameTransformFn(this.operationUrl, httpVerb as HttpVerb, swOpr);
         this.groupName = settings.operations.operationsGroupNameTransformFn(this.operationUrl, httpVerb as HttpVerb, swOpr);
@@ -51,26 +58,25 @@ export class Operation implements IOperation {
         }
     }
     public buildParam(param: Swagger.Parameter): IOperationParam {
+        let swParam: Swagger.Parameter;
+
+        if ((param as Swagger.Path).$ref){
+            let refTypeName = TypeNameInfo.getTypeRef(param as any);
+            let refParam = this.generalParameters[refTypeName];
+
+            swParam = refParam;
+            param = refParam;
+        }
         const paramType = this.typeManager.getTypeNameInfoParameter(param);
+
         this.addImportedType(paramType);
 
         let paramName = param.name;
 
-        //handle cases where $ref is the whole param
-        if (!paramName){
-            let ref = (param as any).$ref as string;
-            if (ref){
-                paramName = ref.substr(ref.lastIndexOf("/") + 1);
-            }
-        }
-
-        //handle case when there is no parameter name (not required for url param)
-        if (!paramName){
-            paramName = `value${this.anonymousParamNameCount++}`;
-        }
-
         //change also the swagger parameter name
-        let swParam = (this.swOpr.parameters) ? this.swOpr.parameters.find((v) => v.name == param.name) : null;
+        if (!swParam){
+            swParam = (this.swOpr.parameters) ? this.swOpr.parameters.find((v) => v.name == param.name) : null;
+        }
 
         //if there is no operation parameter, try to use the extra parameters (from parent)
         if (!swParam){
@@ -88,6 +94,8 @@ export class Operation implements IOperation {
             inBody: param.in === "body",
             inPath: param.in === "path",
             inQuery: param.in === "query",
+            inHeader: param.in == "header",
+            schema: swParam,
         } as IOperationParam;
     }
 

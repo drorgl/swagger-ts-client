@@ -172,8 +172,8 @@ function peg$parse(input, options) {
             return null;
         }
       },
-      peg$c14 = /^[A-Za-z0-9$_]/,
-      peg$c15 = peg$classExpectation([["A", "Z"], ["a", "z"], ["0", "9"], "$", "_"], false, false),
+      peg$c14 = /^[A-Za-z0-9$_\-]/,
+      peg$c15 = peg$classExpectation([["A", "Z"], ["a", "z"], ["0", "9"], "$", "_", "-"], false, false),
       peg$c16 = function() {
       	return text();
       },

@@ -18,8 +18,9 @@ class OperationsGroup {
     }
 }
 class OperationsBuilder {
-    constructor(paths, typeManager) {
+    constructor(paths, generalParameters, typeManager) {
         this.paths = paths;
+        this.generalParameters = generalParameters;
         this.typeManager = typeManager;
         this.opsGroups = new Map();
         this.buildGroups();
@@ -31,7 +32,7 @@ class OperationsBuilder {
             httpVerbs.forEach((verb) => {
                 const opr = swPath[verb];
                 if (opr) {
-                    const operation = new operation_1.Operation(verb, url, opr, swPath.parameters, this.typeManager);
+                    const operation = new operation_1.Operation(verb, url, opr, swPath.parameters, this.generalParameters, this.typeManager);
                     const group = this.getGroup(operation.groupName);
                     group.operations.push(operation);
                     group.addImportedTypes(operation.importedTypes);

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as handlebars from "handlebars";
+import * as wordwrap from "wordwrap";
 import {ISettings} from "../settings";
 import { readFile } from "../utils/fsUtil";
 import {changeCaseHelper, filterListHelper, joinListHelper, someHelper} from "./helpers";
@@ -8,6 +9,13 @@ handlebars.registerHelper("joinList", joinListHelper);
 handlebars.registerHelper("filterList", filterListHelper);
 handlebars.registerHelper("some", someHelper);
 handlebars.registerHelper("changeCase", changeCaseHelper);
+handlebars.registerHelper("wrap", (indent, val) => {
+    if (!val){
+        return "";
+    }
+    let wrapped = wordwrap(60)(val);
+    return wrapped.replace(/\n/g, "\n" + indent);
+});
 handlebars.registerHelper({
     eq:  (v1, v2) => {
         return v1 === v2;
@@ -75,7 +83,7 @@ export abstract class AbstractRenderer<T> implements IRenderer {
             const compiled = this.compliedTemplate(this.getRenderContext(obj));
             stream.write(compiled);
         }catch (e) {
-            throw new Error(`Error compiling ${stream.path} : obj "${obj} \n ${e}`);
+            throw new Error(`Error rendering ${stream.path} : obj "${obj} \n ${e}`);
         }
 
     }

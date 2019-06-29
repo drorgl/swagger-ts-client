@@ -5,5 +5,5 @@ tslint.json
 *.map
 *.ts
 .travis.yml
-dror-swagger-ts-client*.*
+drorgl-swagger-ts-client*
 test

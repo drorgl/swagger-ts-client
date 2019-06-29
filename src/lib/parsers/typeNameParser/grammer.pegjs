@@ -58,7 +58,7 @@ TypeParams = w? firstTypeParam:TypeName  w? typeList:TypesList*
   }
 }
     
-Literal = [A-Za-z0-9$_]+
+Literal = [A-Za-z0-9$_-]+
 {
 	return text();
 }

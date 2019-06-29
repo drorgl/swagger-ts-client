@@ -92,6 +92,15 @@ class TypeNameInfo {
     static isJsPrimitive(typename) {
         return this.primitiveJsTypes.includes(typename);
     }
+    static getTypeRef(schema) {
+        if (schema && schema.$ref && schema.$ref[0] === "#") {
+            const match = schema.$ref.match(typeRefRegEx);
+            if (match) {
+                return match[1];
+            }
+        }
+        return null;
+    }
     static getTypeNameInfoFromSchema(schema, typeManager) {
         if (schema.$ref && schema.$ref[0] === "#") {
             const match = schema.$ref.match(typeRefRegEx);

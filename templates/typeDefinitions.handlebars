@@ -4,11 +4,11 @@
 {{#if info}}
 /*
     {{info.title}} {{info.version}}
-    {{info.description}}
+    {{wrap '    '  info.description}}
     {{#if info.terms}}
 
     Terms:
-    {{info.terms}}
+    {{wrap '    '  info.terms}}
     {{/if}}
     {{#if info.contact}}
     
@@ -36,7 +36,7 @@
 {{#each types}}
     {{#if schema.description}}
     /**
-     * {{schema.description}}
+     * {{wrap '     * '  schema.description}}
      */
     {{/if}}
     {{#if (eq schema.type "array")}}
@@ -46,9 +46,9 @@
     {{#each properties}}
         {{#if (or schema.description schema.example)}}
         /*
-         * {{schema.description}}
+         * {{wrap '         * ' schema.description}}
          {{#if schema.example}}
-         * @example {{schema.example}}
+         * @example {{wrap '         *          ' schema.example}}
          {{/if}}
          */
         {{/if}}

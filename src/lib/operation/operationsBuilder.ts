@@ -33,7 +33,9 @@ export interface IOperationParam {
     paramDisplayName: string;
     paramType: string;
     inBody: boolean;
-    inPath: Boolean;
+    inPath: boolean;
+    inHeader: boolean;
+    schema: Swagger.Parameter;
 }
 
 const httpVerbs: HttpVerb[] = ["get", "put", "post", "delete", "options", "head", "patch"];
@@ -61,6 +63,7 @@ export class OperationsBuilder {
         private paths: {
             [pathName: string]: Swagger.Path,
         },
+        private generalParameters: {[parameterName: string]: Swagger.BodyParameter|Swagger.QueryParameter},
         private typeManager: TypeBuilder) {
         this.buildGroups();
     }
@@ -74,7 +77,7 @@ export class OperationsBuilder {
             httpVerbs.forEach((verb) => {
                 const opr = swPath[verb] as Swagger.Operation;
                 if (opr){
-                    const operation = new Operation(verb, url, opr, swPath.parameters, this.typeManager);
+                    const operation = new Operation(verb, url, opr, swPath.parameters, this.generalParameters, this.typeManager);
                     const group = this.getGroup(operation.groupName);
                     group.operations.push(operation);
                     group.addImportedTypes(operation.importedTypes);

@@ -126,6 +126,16 @@ export class TypeNameInfo{
         return this.primitiveJsTypes.includes(typename);
     }
 
+    public static getTypeRef(schema: Swagger.Schema){
+        if (schema && schema.$ref && schema.$ref[0] === "#"){
+            const match = schema.$ref.match(typeRefRegEx);
+            if (match){
+                return match[1];
+            }
+        }
+        return null;
+    }
+
     public static getTypeNameInfoFromSchema(schema: Swagger.Schema, typeManager: TypeBuilder ): TypeNameInfo{
         if (schema.$ref && schema.$ref[0] === "#"){
             const match = schema.$ref.match(typeRefRegEx);
