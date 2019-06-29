@@ -1,6 +1,5 @@
 import * as commander from "commander";
 import * as program from "commander";
-import * as packageJson from "../package.json";
 import {HttpSwaggerProvider, ISettings} from "./lib";
 
 const usageString = `
@@ -9,7 +8,7 @@ Executing swagger-ts-client with out any options, it tries to load settings from
 
 export function getArgs(){
     program
-      .version(packageJson.version)
+      .version("0.9.9")
       .usage(usageString)
       .option("-c, --config <path/to/config.file.js>", "use the configuration file from the path")
       .option("-s, --swaggerFile <path/to/swagger.doc.json>", "use swagger definition from the path")

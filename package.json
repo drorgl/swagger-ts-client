@@ -19,7 +19,7 @@
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "build:dev": "tsc",
     "build:dryrun": "tsc -noEmit",
-    "build": "tsc --sourceMap false",
+    "build": "npm run build:parsers && tsc --sourceMap false",
     "build:lambdaParser": "pegjs -o ./src/lib/parsers/lambdaParser/parser.generated.js ./src/lib/parsers/lambdaParser/grammer.pegjs",
     "build:typeParser": "pegjs -o ./src/lib/parsers/typeNameParser/parser.generated.js ./src/lib/parsers/typeNameParser/grammer.pegjs",
     "build:parsers": "npm run build:lambdaParser && npm run build:typeParser",

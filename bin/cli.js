@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const program = require("commander");
 const lib_1 = require("./lib");
 const usageString = `
 
 Executing swagger-ts-client with out any options, it tries to load settings from ./ts-client.config.js.`;
 function getArgs() {
-    const program = require("commander");
     program
-        .version("0.9.0")
+        .version("0.9.9")
         .usage(usageString)
         .option("-c, --config <path/to/config.file.js>", "use the configuration file from the path")
         .option("-s, --swaggerFile <path/to/swagger.doc.json>", "use swagger definition from the path")
