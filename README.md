@@ -32,6 +32,8 @@ I've continued working on this project after I've encountered the below problems
 + Swagger Generator has some issues with OpenAPI v2 with referenced headers
 + autorest is having problems with methods lacking OperationId
 
+# Swagger-ts-client
+
 Swagger-ts-client is a tool that generate TypeScript types and  http client from Swagger ([open api](https://www.openapis.org/)). The code generation is highly configurable through a configuration file. Refer [Configuration section](#Configuration) for more details.
 
 The generated code can completely controlled by using  [Handlebar](http://handlebarsjs.com/) templates.Refer template section for more section. The default template generates http clients based on the [SuperAgent](http://visionmedia.github.io/superagent/) library.
@@ -260,6 +262,7 @@ There are some options that can be used to change
 
 # TODO
 [ ] Implement allOf (petstore-expanded.v2.json)
+
 [ ] Unit Testing
 
 # Build 
