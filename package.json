@@ -1,6 +1,6 @@
 {
   "name": "@drorgl/swagger-ts-client",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "A tool to generate typescript http clients and types from swagger definitions",
   "main": "./bin/main.js",
   "bin": "./bin/main.js",
@@ -28,7 +28,6 @@
   "author": "kjayasa <gitdev@jayk.me>",
   "license": "ISC",
   "dependencies": {
-    
     "change-case": "3.1.0",
     "commander": "2.19.0",
     "handlebars": "4.1.1",
