@@ -12,10 +12,13 @@ export interface IType{
     readonly typeName: string;
     readonly swaggerTypeName: string;
     readonly properties?: IProperty[];
+    readonly schema: Swagger.Schema;
+    readonly ofType: string;
 }
 export interface IProperty{
     propertyName: string;
     typeName: string;
+    schema: Swagger.Schema;
 }
 
 export interface ISwaggerDefinition{
@@ -51,6 +54,10 @@ export class TypeBuilder{
     }
     private buildTypeCache(){
         logger.info("Building Types..");
+        if (!this.definition){
+            logger.warn("no definitions found, attempting to skip");
+            return;
+        }
         Object.keys(this.definition).forEach((swaggerTypeName) => {
             const typename = this.getTypeName(swaggerTypeName);
             if (!this.typeCache.has(typename)){
@@ -67,21 +74,26 @@ export class TypeBuilder{
 
     private  buildType(swaggerTypeName: string, swaggerType: Swagger.Schema): IType {
        // let fullTypeName=this.splitGeneric(swaggerTypeName);
-        const type = new Type(swaggerTypeName);
+       if (swaggerType.type == "array"){
+           return Type.fromSwaggerSchema(swaggerTypeName, swaggerType, this);
+       }
 
-        const properties = swaggerType.properties;
-        for (const propertyName in properties) {
+       const type = Type.fromSwaggerTypeName(swaggerTypeName);
+       type.schema = swaggerType;
+       const properties = swaggerType.properties;
+       for (const propertyName in properties) {
             if (properties.hasOwnProperty(propertyName)) {
                 const prop = properties[propertyName];
                 let typeName = TypeNameInfo.getTypeNameInfoFromSchema(prop, this);
-                if (typeName.isInlineType){
-                    typeName = TypeNameInfo.fromSwaggerTypeName(type.typeNameInfo.partialTypeName + changeCase.pascalCase(propertyName));
-                    this.inlineTypes.set(typeName.fullTypeName, prop);
-                 }
-                type.addProperty(propertyName, typeName);
+                // if (typeName.isInlineType){
+                //     typeName = TypeNameInfo.fromSwaggerTypeName(type.typeNameInfo.partialTypeName + changeCase.pascalCase(propertyName));
+                //     this.inlineTypes.set(typeName.fullTypeName, prop);
+                //  }
+                type.addProperty(propertyName, typeName, properties[propertyName]);
             }
         }
-        return type;
+
+       return type;
     }
     private  buildTypeFromDefinition(swaggerTypeName: string): IType {
 

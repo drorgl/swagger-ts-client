@@ -1,4 +1,6 @@
 import * as Swagger from "swagger-schema-official";
+import * as url from "url";
+import { changeCaseHelper } from "../renderer/helpers";
 import {HttpVerb, settings} from "../settings";
 import {TypeBuilder} from "../type/typeBuilder";
 import { TypeNameInfo } from "../type/typeNameInfo";
@@ -11,16 +13,27 @@ export class Operation implements IOperation {
     public operationName: string;
     public groupName: string;
     public importedTypes: string[] = [];
+    private anonymousParamNameCount = 1;
 
-    constructor( public httpVerb: string , public url: string, private swOpr: Swagger.Operation , private typeManager: TypeBuilder ) {
-       this.operationName = settings.operations.operationsNameTransformFn(url, httpVerb as HttpVerb, swOpr);
-       this.groupName = settings.operations.operationsGroupNameTransformFn(url, httpVerb as HttpVerb, swOpr);
-       this.build();
+    constructor( public httpVerb: string , public operationUrl: string, private swOpr: Swagger.Operation, private extraOprParameters: Swagger.Parameter[] , private typeManager: TypeBuilder ) {
+        this.operationUrl = url.parse(this.operationUrl).path;
+        this.operationName = settings.operations.operationsNameTransformFn(this.operationUrl, httpVerb as HttpVerb, swOpr);
+        this.groupName = settings.operations.operationsGroupNameTransformFn(this.operationUrl, httpVerb as HttpVerb, swOpr);
+        this.build();
     }
     public build(){
         this.responsesType = this.getResponse();
         if (this.swOpr.parameters && this.swOpr.parameters.length){
             this.operationParams = this.swOpr.parameters.map((p) => this.buildParam(p));
+        }
+
+        if (this.extraOprParameters && this.extraOprParameters.length){
+            let extraParams = this.extraOprParameters.map((p) => this.buildParam(p));
+            if (this.operationParams){
+                this.operationParams = this.operationParams.concat(extraParams);
+            }else{
+                this.operationParams = extraParams;
+            }
         }
 
     }
@@ -41,9 +54,36 @@ export class Operation implements IOperation {
         const paramType = this.typeManager.getTypeNameInfoParameter(param);
         this.addImportedType(paramType);
 
+        let paramName = param.name;
+
+        //handle cases where $ref is the whole param
+        if (!paramName){
+            let ref = (param as any).$ref as string;
+            if (ref){
+                paramName = ref.substr(ref.lastIndexOf("/") + 1);
+            }
+        }
+
+        //handle case when there is no parameter name (not required for url param)
+        if (!paramName){
+            paramName = `value${this.anonymousParamNameCount++}`;
+        }
+
+        //change also the swagger parameter name
+        let swParam = (this.swOpr.parameters) ? this.swOpr.parameters.find((v) => v.name == param.name) : null;
+
+        //if there is no operation parameter, try to use the extra parameters (from parent)
+        if (!swParam){
+            swParam = (this.extraOprParameters) ? this.extraOprParameters.find((v) => v.name == param.name) : null;
+        }
+
+        if (swParam){
+            swParam.name = changeCaseHelper(param.name, "camel");
+        }
+
         return {
-            paramName: param.name,
-            paramDisplayName: param.name.replace(nonLiteralRegEx, "_"),
+            paramName,
+            paramDisplayName: changeCaseHelper(swParam.name, "camel"),
             paramType: paramType.fullTypeName,
             inBody: param.in === "body",
             inPath: param.in === "path",

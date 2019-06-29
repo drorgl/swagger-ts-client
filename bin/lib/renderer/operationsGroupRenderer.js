@@ -24,6 +24,8 @@ class OperationsGroupRender extends renderer_1.AbstractRenderer {
             },
             operationGroup,
             tag: settings_1.settings.operations.templateTag,
+            basePath: operationGroup.basePath,
+            info: operationGroup.info,
         };
     }
     getExportPath() {

@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request-promise-native");
+const dataParser_1 = require("./dataParser");
 class HttpSwaggerProvider {
     constructor(url, userName = "", password = "") {
         this.url = url;
@@ -24,14 +25,12 @@ class HttpSwaggerProvider {
             if (this.userName && this.password) {
                 logger.info(`Requesting swagger definitions from ${this.url} ...`);
                 response = yield request.get(this.url).auth(this.userName, this.password, false);
-                logger.info(`Received swagger definitions from ${this.url} ...`);
-                return JSON.parse(response);
+                return dataParser_1.parseResponse(response, logger);
             }
             else {
                 logger.info(`Requesting swagger definitions from ${this.url} ...`);
                 response = yield request.get(this.url);
-                logger.info(`Received swagger definitions from ${this.url} ...`);
-                return JSON.parse(response);
+                return dataParser_1.parseResponse(response, logger);
             }
         });
     }

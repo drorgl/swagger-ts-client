@@ -8,5 +8,8 @@ class Logger {
         console.error("\x1b[31m%s\x1b[0m", error.message);
         console.error("\x1b[2m\x1b[31m%s\x1b[0m", error.stack);
     }
+    warn(message) {
+        console.warn(message);
+    }
 }
 exports.logger = new Logger();

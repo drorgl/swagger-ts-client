@@ -19,19 +19,40 @@ export class TsFromSwagger {
     private async getSwagger() {
        return await getProvider().provide(settings, logger);
     }
-    private adjustSwaggerPaths(swagger: Swagger.Spec) {
+
+    private getBasePath(swagger: Swagger.Spec){
         let base = swagger.basePath;
         const host: string = swagger.host;
         const schemes = swagger.schemes;
-        const newPaths: {[pathName: string]: Swagger.Path} = {};
 
         if (base && base.endsWith("/")) {
-            base = base.substring(0, base.length - 2);
+            let notSlashIndex = base.length - base.split("").reverse().findIndex((v) => v != "/");
+            base = base.substring(0, notSlashIndex);
         }
+
+        if (host){
+            base = host + base;
+        }
+
+        if (schemes !== undefined && schemes.length > 0){
+            if (schemes.find(function(x) {return x.toLowerCase() == "https"; })){
+                base = "https://" + base;
+            } else {
+                base = "http://" + base;
+            }
+        }
+
+        return base;
+    }
+
+    private adjustSwaggerPaths(swagger: Swagger.Spec) {
+
+        const newPaths: {[pathName: string]: Swagger.Path} = {};
 
         const checkPathParam = (name: string, paths: Swagger.Path) => {
             for (const k of Object.keys(paths)) {
-                const params = paths[k].parameters;
+                const params = (paths[k].parameters) ? paths[k].parameters : paths.parameters;
+
                 if (params) {
                     for (let i = 0; i < params.length; i++) {
                         const param = params[i];
@@ -64,22 +85,8 @@ export class TsFromSwagger {
                     }
                 });
             }
-            if (base) {
-                if (!fixedPath.startsWith("/")) {
-                    fixedPath = `/${fixedPath}`;
-                }
-
-                fixedPath = base + fixedPath;
-            }
-
-            fixedPath = (host !== undefined) ? host + fixedPath : fixedPath;
-
-            if (schemes !== undefined && schemes.length > 0){
-                if (schemes.filter(function(x) {return x.toLowerCase() == "https"; })){
-                    fixedPath = "https://" + fixedPath;
-                } else {
-                    fixedPath = "http://" + fixedPath;
-                }
+            if (!fixedPath.startsWith("/")) {
+                fixedPath = `/${fixedPath}`;
             }
 
             newPaths[fixedPath] = swagger.paths[p];
@@ -90,26 +97,31 @@ export class TsFromSwagger {
     private async render() {
         const swagger = await this.getSwagger();
         this.adjustSwaggerPaths(swagger);
+        let basePath = this.getBasePath(swagger);
+        let info = swagger.info;
         const typeManager = new TypeBuilder(swagger.definitions);
-        await this.renderOperationGroups(swagger.paths, typeManager);
-        await this.renderTypes(typeManager);
+        await this.renderOperationGroups(basePath, info, swagger.paths, typeManager);
+        await this.renderTypes(info, typeManager);
     }
     private async createOutDirs() {
         await createIfNotExists(settings.type.outPutPath);
         await createIfNotExists(settings.operations.outPutPath);
     }
 
-    private async renderTypes(typeManager) {
+    private async renderTypes(info: Swagger.Info, typeManager: TypeBuilder) {
         const stream = createWriteStream(settings.type.outPutPath),
             renderer = new TypesDefinitionRender();
 
         logger.info(`Writing Types to ${settings.type.outPutPath}`);
 
-        await renderer.render(stream, typeManager.getAllTypes());
+        await renderer.render(stream, Object.assign({}, {types: typeManager.getAllTypes()}, {info}));
         stream.end();
     }
 
-    private async renderOperationGroups(paths: {
+    private async renderOperationGroups(
+        basePath: string,
+        info: Swagger.Info,
+        paths: {
         [pathName: string]: Swagger.Path,
     }, typeManager) {
         const renderer = new OperationsGroupRender(),
@@ -119,7 +131,7 @@ export class TsFromSwagger {
             const stream = createWriteStream(settings.operations.outPutPath, opsName );
             logger.info(`Writing Operation ${opsName}  to ${settings.operations.outPutPath}`);
 
-            await renderer.render(stream, g);
+            await renderer.render(stream, Object.assign({}, g, {basePath, info}));
             stream.end();
         });
     }

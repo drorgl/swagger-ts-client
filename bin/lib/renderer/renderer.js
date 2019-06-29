@@ -15,6 +15,34 @@ handlebars.registerHelper("joinList", helpers_1.joinListHelper);
 handlebars.registerHelper("filterList", helpers_1.filterListHelper);
 handlebars.registerHelper("some", helpers_1.someHelper);
 handlebars.registerHelper("changeCase", helpers_1.changeCaseHelper);
+handlebars.registerHelper({
+    eq: (v1, v2) => {
+        return v1 === v2;
+    },
+    ne: (v1, v2) => {
+        return v1 !== v2;
+    },
+    lt: (v1, v2) => {
+        return v1 < v2;
+    },
+    gt: (v1, v2) => {
+        return v1 > v2;
+    },
+    lte: (v1, v2) => {
+        return v1 <= v2;
+    },
+    gte: (v1, v2) => {
+        return v1 >= v2;
+    },
+    // tslint:disable-next-line:object-literal-shorthand
+    and: function () {
+        return Array.prototype.slice.call(arguments).every(Boolean);
+    },
+    // tslint:disable-next-line:object-literal-shorthand
+    or: function () {
+        return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+    },
+});
 function registerHandleBarsHelpers(settings) {
     if (settings.templateHelpers) {
         handlebars.registerHelper(settings.templateHelpers);

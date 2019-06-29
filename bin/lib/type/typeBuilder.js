@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const changeCase = require("change-case");
 const logger_1 = require("../logger");
 const type_1 = require("./type");
 const typeNameInfo_1 = require("./typeNameInfo");
@@ -32,6 +31,10 @@ class TypeBuilder {
     }
     buildTypeCache() {
         logger_1.logger.info("Building Types..");
+        if (!this.definition) {
+            logger_1.logger.warn("no definitions found, attempting to skip");
+            return;
+        }
         Object.keys(this.definition).forEach((swaggerTypeName) => {
             const typename = this.getTypeName(swaggerTypeName);
             if (!this.typeCache.has(typename)) {
@@ -45,17 +48,21 @@ class TypeBuilder {
     }
     buildType(swaggerTypeName, swaggerType) {
         // let fullTypeName=this.splitGeneric(swaggerTypeName);
-        const type = new type_1.Type(swaggerTypeName);
+        if (swaggerType.type == "array") {
+            return type_1.Type.fromSwaggerSchema(swaggerTypeName, swaggerType, this);
+        }
+        const type = type_1.Type.fromSwaggerTypeName(swaggerTypeName);
+        type.schema = swaggerType;
         const properties = swaggerType.properties;
         for (const propertyName in properties) {
             if (properties.hasOwnProperty(propertyName)) {
                 const prop = properties[propertyName];
                 let typeName = typeNameInfo_1.TypeNameInfo.getTypeNameInfoFromSchema(prop, this);
-                if (typeName.isInlineType) {
-                    typeName = typeNameInfo_1.TypeNameInfo.fromSwaggerTypeName(type.typeNameInfo.partialTypeName + changeCase.pascalCase(propertyName));
-                    this.inlineTypes.set(typeName.fullTypeName, prop);
-                }
-                type.addProperty(propertyName, typeName);
+                // if (typeName.isInlineType){
+                //     typeName = TypeNameInfo.fromSwaggerTypeName(type.typeNameInfo.partialTypeName + changeCase.pascalCase(propertyName));
+                //     this.inlineTypes.set(typeName.fullTypeName, prop);
+                //  }
+                type.addProperty(propertyName, typeName, properties[propertyName]);
             }
         }
         return type;

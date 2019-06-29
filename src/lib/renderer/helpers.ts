@@ -111,7 +111,7 @@ export function joinListHelper(...args): string {
   }
 }
 
-export function changeCaseHelper(context: any, toCase: string, options: any): string{
+export function changeCaseHelper(context: any, toCase: string, options?: any): string{
   if (context && typeof(context) === "string" && toCase && changeCase[toCase] && changeCase[toCase] instanceof Function){
     return changeCase[toCase](context);
   }else{

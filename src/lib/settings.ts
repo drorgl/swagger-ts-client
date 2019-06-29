@@ -3,6 +3,7 @@ import * as path from "path";
 import * as process from "process";
 import * as Swagger from "swagger-schema-official";
 import {logger} from "./logger";
+import { changeCaseHelper } from "./renderer/helpers";
 import {registerHandleBarsHelpers} from "./renderer/renderer";
 import {ISwaggerProvider} from "./swaggerProvider/swaggerProvider";
 import  {deepMerge} from "./utils/deepMerge";
@@ -71,14 +72,16 @@ function operationsGroupFilenameFn(groupName){
 
 function operationsGroupNameTransformFn(operationName, httpVerb , operation){
     if (operation.tags && operation.tags.length ){
-        return `${operation.tags[0]}HttpSvc`;
+        return changeCaseHelper(`${operation.tags[0]}HttpSvc`, "pascal");
     }
     else{
         return settings.operations.ungroupedOperationsName;
     }
 }
 function operationsNameTransformFn(operationName: string, httpVerb: HttpVerb , operation: Swagger.Operation){
-   return (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName.replace(/[^a-zA-Z0-9]/, "");
+   let name = (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName;
+
+   return name.replace(/[^a-zA-Z0-9]/g, "_").replace(/_+/g, "_");
 }
 
 export function loadSettings(configFile: string= null, override: ISettings= {}){

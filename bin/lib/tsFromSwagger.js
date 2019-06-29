@@ -32,17 +32,32 @@ class TsFromSwagger {
             return yield swaggerProvider_1.getProvider().provide(settings_1.settings, logger_1.logger);
         });
     }
-    adjustSwaggerPaths(swagger) {
+    getBasePath(swagger) {
         let base = swagger.basePath;
         const host = swagger.host;
         const schemes = swagger.schemes;
-        const newPaths = {};
         if (base && base.endsWith("/")) {
-            base = base.substring(0, base.length - 2);
+            let notSlashIndex = base.length - base.split("").reverse().findIndex((v) => v != "/");
+            base = base.substring(0, notSlashIndex);
         }
+        if (host) {
+            base = host + base;
+        }
+        if (schemes !== undefined && schemes.length > 0) {
+            if (schemes.find(function (x) { return x.toLowerCase() == "https"; })) {
+                base = "https://" + base;
+            }
+            else {
+                base = "http://" + base;
+            }
+        }
+        return base;
+    }
+    adjustSwaggerPaths(swagger) {
+        const newPaths = {};
         const checkPathParam = (name, paths) => {
             for (const k of Object.keys(paths)) {
-                const params = paths[k].parameters;
+                const params = (paths[k].parameters) ? paths[k].parameters : paths.parameters;
                 if (params) {
                     for (let i = 0; i < params.length; i++) {
                         const param = params[i];
@@ -72,20 +87,8 @@ class TsFromSwagger {
                     }
                 });
             }
-            if (base) {
-                if (!fixedPath.startsWith("/")) {
-                    fixedPath = `/${fixedPath}`;
-                }
-                fixedPath = base + fixedPath;
-            }
-            fixedPath = (host !== undefined) ? host + fixedPath : fixedPath;
-            if (schemes !== undefined && schemes.length > 0) {
-                if (schemes.filter(function (x) { return x.toLowerCase() == "https"; })) {
-                    fixedPath = "https://" + fixedPath;
-                }
-                else {
-                    fixedPath = "http://" + fixedPath;
-                }
+            if (!fixedPath.startsWith("/")) {
+                fixedPath = `/${fixedPath}`;
             }
             newPaths[fixedPath] = swagger.paths[p];
         });
@@ -95,9 +98,11 @@ class TsFromSwagger {
         return __awaiter(this, void 0, void 0, function* () {
             const swagger = yield this.getSwagger();
             this.adjustSwaggerPaths(swagger);
+            let basePath = this.getBasePath(swagger);
+            let info = swagger.info;
             const typeManager = new typeBuilder_1.TypeBuilder(swagger.definitions);
-            yield this.renderOperationGroups(swagger.paths, typeManager);
-            yield this.renderTypes(typeManager);
+            yield this.renderOperationGroups(basePath, info, swagger.paths, typeManager);
+            yield this.renderTypes(info, typeManager);
         });
     }
     createOutDirs() {
@@ -106,22 +111,22 @@ class TsFromSwagger {
             yield fsUtil_1.createIfNotExists(settings_1.settings.operations.outPutPath);
         });
     }
-    renderTypes(typeManager) {
+    renderTypes(info, typeManager) {
         return __awaiter(this, void 0, void 0, function* () {
             const stream = fsUtil_1.createWriteStream(settings_1.settings.type.outPutPath), renderer = new typesDefinitionRender_1.TypesDefinitionRender();
             logger_1.logger.info(`Writing Types to ${settings_1.settings.type.outPutPath}`);
-            yield renderer.render(stream, typeManager.getAllTypes());
+            yield renderer.render(stream, Object.assign({}, { types: typeManager.getAllTypes() }, { info }));
             stream.end();
         });
     }
-    renderOperationGroups(paths, typeManager) {
+    renderOperationGroups(basePath, info, paths, typeManager) {
         return __awaiter(this, void 0, void 0, function* () {
             const renderer = new operationsGroupRenderer_1.OperationsGroupRender(), opsBuilder = new operationsBuilder_1.OperationsBuilder(paths, typeManager);
             opsBuilder.getAllGroups().forEach((g) => __awaiter(this, void 0, void 0, function* () {
                 const opsName = settings_1.settings.operations.outFileNameTransformFn(g.operationsGroupName);
                 const stream = fsUtil_1.createWriteStream(settings_1.settings.operations.outPutPath, opsName);
                 logger_1.logger.info(`Writing Operation ${opsName}  to ${settings_1.settings.operations.outPutPath}`);
-                yield renderer.render(stream, g);
+                yield renderer.render(stream, Object.assign({}, g, { basePath, info }));
                 stream.end();
             }));
         });

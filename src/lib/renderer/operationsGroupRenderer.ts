@@ -1,9 +1,9 @@
 import * as path from "path";
-import {IOperationsGroup} from "../operation/operationsBuilder";
+import {IBasePath, IOperationsGroup, ISwaggerInfo} from "../operation/operationsBuilder";
 import {settings} from "../settings";
 import {AbstractRenderer} from "./renderer";
 
-export class OperationsGroupRender extends AbstractRenderer<IOperationsGroup>{
+export class OperationsGroupRender extends AbstractRenderer<IOperationsGroup & IBasePath & ISwaggerInfo>{
     constructor(){
         super({templatePath: settings.operations.templateFile});
     }
@@ -15,7 +15,7 @@ export class OperationsGroupRender extends AbstractRenderer<IOperationsGroup>{
             };
         });
     }
-    protected getRenderContext(operationGroup: IOperationsGroup): {} {
+    protected getRenderContext(operationGroup: IOperationsGroup & IBasePath & ISwaggerInfo): {} {
         const types = operationGroup.importedTypes;
 
         return {
@@ -25,6 +25,8 @@ export class OperationsGroupRender extends AbstractRenderer<IOperationsGroup>{
           } ,
           operationGroup,
           tag: settings.operations.templateTag,
+          basePath: operationGroup.basePath,
+          info: operationGroup.info,
         };
     }
     private getExportPath(){

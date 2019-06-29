@@ -14,13 +14,14 @@ class TypesDefinitionRender extends renderer_1.AbstractRenderer {
             };
         });
     }
-    getRenderContext(types) {
+    getRenderContext(typeInfo) {
         const declaredTypes = {
             typeAliases: this.getTypeAliases(),
             generatedTypes: settings_1.settings.type.generatedTypes,
             membersOptional: settings_1.settings.type.membersOptional ? "?" : "",
-            types,
+            types: typeInfo.types,
             tag: settings_1.settings.type.templateTag,
+            info: typeInfo.info,
         };
         return declaredTypes;
     }

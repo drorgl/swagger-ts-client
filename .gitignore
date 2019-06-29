@@ -67,3 +67,4 @@ typings/
 ts-client.config.js
 
 tmp
+/test/samples/out

@@ -7,13 +7,27 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Mocha All",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--timeout",
+                "999999",
+                "--colors",
+                "-r",
+                "ts-node/register",
+                "test/**/*.spec.ts"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Test",
             "program": "${workspaceFolder}/node_modules/ts-node/dist/bin.js",
             "args": [
-                "src/main.ts",
-                "generate",
-                "-s","swagger-json.json"
+                "test/fulltest.ts"
             ],
-        },
+        }
     ]
 }

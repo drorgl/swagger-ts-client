@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const process = require("process");
 const logger_1 = require("./logger");
+const helpers_1 = require("./renderer/helpers");
 const renderer_1 = require("./renderer/renderer");
 const deepMerge_1 = require("./utils/deepMerge");
 exports.settings = {
@@ -30,14 +31,15 @@ function operationsGroupFilenameFn(groupName) {
 }
 function operationsGroupNameTransformFn(operationName, httpVerb, operation) {
     if (operation.tags && operation.tags.length) {
-        return `${operation.tags[0]}HttpSvc`;
+        return helpers_1.changeCaseHelper(`${operation.tags[0]}HttpSvc`, "pascal");
     }
     else {
         return exports.settings.operations.ungroupedOperationsName;
     }
 }
 function operationsNameTransformFn(operationName, httpVerb, operation) {
-    return (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName.replace(/[^a-zA-Z0-9]/, "");
+    let name = (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName;
+    return name.replace(/[^a-zA-Z0-9]/g, "_").replace(/_+/g, "_");
 }
 function loadSettings(configFile = null, override = {}) {
     if (configFile) {

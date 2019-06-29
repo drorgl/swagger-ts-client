@@ -9,13 +9,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fsUtil_1 = require("../utils/fsUtil");
+const dataParser_1 = require("./dataParser");
 class FsSwaggerProvider {
     provide(settings, logger) {
         return __awaiter(this, void 0, void 0, function* () {
             if (settings.swaggerFile) {
                 logger.info(`Reading swagger definitions from ${settings.swaggerFile}`);
                 const data = yield fsUtil_1.readFile(settings.swaggerFile, "utf8");
-                return JSON.parse(data);
+                try {
+                    return dataParser_1.parseResponse(data, logger);
+                }
+                catch (e) {
+                    logger.error(e);
+                    throw e;
+                }
             }
             else {
                 throw new Error("Filename to fetch swagger definition is not provided");

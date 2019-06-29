@@ -1,10 +1,14 @@
-# swagger-ts-client [![Build Status](https://travis-ci.org/kjayasa/swagger-ts-client.svg?branch=master)](https://travis-ci.org/kjayasa/swagger-ts-client)
-
 Swagger-ts-client is a tool that generate TypeScript types and  http client from Swagger ([open api](https://www.openapis.org/)). The code generation is highly configurable through a configuration file. Refer [Configuration section](#Configuration) for more details.
 
 The generated code can completely controlled by using  [Handlebar](http://handlebarsjs.com/) templates.Refer template section for more section. The default template generates http clients based on the [SuperAgent](http://visionmedia.github.io/superagent/) library.
 
 Swagger-ts-client can import swagger definition from multiple sources using provider plugins.The default provider imports JSON formated swagger definition file from the file system.There is also an Http provider built in, that can be configured to import swagger from a url.
+
+# Alternatives
+While I worked on fixing some issues with this project, I've also checked out a few alternatives which work better, I've decided not to scrap the modifications but rather offer them with a list of alternatives:
++ autorest - a project from microsoft, specifically there is [autorest-typescript](https://github.com/azure/autorest.typescript)
++ [Swagger Generator](https://generator.swagger.io/) and [Swagger Editor](https://editor.swagger.io/)
+
 
 ## Some differences form other tools for the same purpose
 * provides a lot of control in code generation.
@@ -224,6 +228,9 @@ There are some options that can be used to change
 # Template
 
 # Providers
+
+# TODO
+[ ] Implement allOf (petstore-expanded.v2.json)
 
 # Build 
 Clone or download from git hub.

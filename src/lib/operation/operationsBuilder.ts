@@ -1,9 +1,21 @@
 import * as Swagger from "swagger-schema-official";
 import {logger} from "../logger";
 import {HttpVerb} from "../settings";
-import {TypeBuilder} from "../type/typeBuilder";
+import {IType, TypeBuilder} from "../type/typeBuilder";
 import {Operation} from "./operation";
-export interface IOperationsGroup {
+
+export interface ISwaggerInfo{
+    info: Swagger.Info;
+}
+export interface ITypeInfo{
+    types: IType[];
+}
+
+export interface IBasePath{
+    basePath: string;
+}
+
+export interface IOperationsGroup{
     operationsGroupName: string;
     operations: IOperation[];
     importedTypes: string[];
@@ -14,7 +26,7 @@ export interface IOperation {
     operationParams: IOperationParam[];
     responsesType: string;
     httpVerb: string;
-    url: string;
+    operationUrl: string;
 }
 export interface IOperationParam {
     paramName: string;
@@ -62,7 +74,7 @@ export class OperationsBuilder {
             httpVerbs.forEach((verb) => {
                 const opr = swPath[verb] as Swagger.Operation;
                 if (opr){
-                    const operation = new Operation(verb, url, opr, this.typeManager);
+                    const operation = new Operation(verb, url, opr, swPath.parameters, this.typeManager);
                     const group = this.getGroup(operation.groupName);
                     group.operations.push(operation);
                     group.addImportedTypes(operation.importedTypes);

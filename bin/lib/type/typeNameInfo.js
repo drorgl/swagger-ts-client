@@ -46,10 +46,19 @@ class TypeNameInfo {
         return this.parsedResult.partialTypeName;
     }
     static fromSwaggerTypeName(swaggerTypeName) {
-        return new TypeNameInfo(parsers_1.typeNameParser.parse(swaggerTypeName));
+        if (settings_1.settings && settings_1.settings.type && settings_1.settings.type.generatedTypes == "interface") {
+            let astTypename = parsers_1.typeNameParser.parse(swaggerTypeName);
+            if ((astTypename.partialTypeName.indexOf("SwaggerInlineType") == -1) &&
+                TypeNameInfo.primitiveJsTypes.findIndex((v) => v == astTypename.partialTypeName) == -1) {
+                astTypename.partialTypeName = "I" + astTypename.partialTypeName;
+            }
+            return new TypeNameInfo(astTypename);
+        }
+        else {
+            return new TypeNameInfo(parsers_1.typeNameParser.parse(swaggerTypeName));
+        }
     }
     static createInlineTypeName() {
-        console.log("generating inline type");
         let name = "";
         if (settings_1.settings && settings_1.settings.type && settings_1.settings.type.generatedTypes == "interface") {
             name = `ISwaggerInlineType${this.inlineSchemaCount++}`;

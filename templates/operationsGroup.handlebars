@@ -3,6 +3,31 @@ import * as request from "superagent";
 import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path}}";
 {{/if}}
 
+{{#if info}}
+/*
+    {{info.title}} {{info.version}}
+    {{info.description}}
+    {{#if info.terms}}
+
+    Terms:
+    {{info.terms}}
+    {{/if}}
+    {{#if info.contact}}
+    
+    Contact:
+    {{info.contact.name}}
+    {{info.contact.email}}
+    {{info.contact.url}}
+    {{/if}}
+    {{#if info.license}}
+
+    License:
+    {{info.license.name}}
+    {{info.license.url}}
+    {{/if}}
+*/
+{{/if}}
+
 {{#if tag}}
     {{#each tag}}
     {{this}}
@@ -10,11 +35,19 @@ import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path
 {{/if}}
 
 export class {{operationGroup.operationsGroupName}} {
-    constructor(private baseUrl:string){
+    constructor(private baseUrl:string {{#if basePath}} = "{{basePath}}"{{/if}}){
 
     }
 
     {{#each operationGroup.operations}}
+    {{#if swOpr.summary}}
+    /**
+     * {{swOpr.summary}}
+    {{#each swOpr.parameters}}
+     * @param { {{#if this.type}}{{this.type}}{{else}}{{this.name}}{{/if}} } {{this.name}} {{this.description}}
+    {{/each}}
+     */
+    {{/if}}
     public {{operationName}}({{#joinList operationParams}} {{paramDisplayName}}:{{paramType}} {{/joinList}}):Promise<{{responsesType}}>{
         {{#if operationParams}}
             {{#some operationParams "op=>(!op.inBody && !op.inPath)"}}
@@ -26,7 +59,7 @@ export class {{operationGroup.operationsGroupName}} {
         {{/if}}
         return new Promise<{{responsesType}}>((resolve, reject) => {
             request
-            .{{httpVerb}}(this.baseUrl + `{{url}}`)
+            .{{httpVerb}}(this.baseUrl + `{{operationUrl}}`)
             {{#some operationParams "op=>(!op.inBody && !op.inPath)"}}
             .query(params)
             {{/some}}

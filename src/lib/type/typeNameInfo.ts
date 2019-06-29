@@ -79,11 +79,19 @@ export class TypeNameInfo{
     }
 
     public static fromSwaggerTypeName( swaggerTypeName: string ): TypeNameInfo{
+        if (settings && settings.type && settings.type.generatedTypes == "interface"){
+            let astTypename = typeNameParser.parse(swaggerTypeName);
+            if ((astTypename.partialTypeName.indexOf("SwaggerInlineType") == -1) &&
+                 TypeNameInfo.primitiveJsTypes.findIndex((v) => v == astTypename.partialTypeName) == -1){
+                astTypename.partialTypeName = "I" + astTypename.partialTypeName;
+            }
+            return  new TypeNameInfo(astTypename);
+        }else{
         return  new TypeNameInfo(typeNameParser.parse(swaggerTypeName));
+        }
     }
 
     public static createInlineTypeName(): TypeNameInfo{
-        console.log("generating inline type");
         let name = "";
         if (settings && settings.type && settings.type.generatedTypes == "interface"){
             name = `ISwaggerInlineType${this.inlineSchemaCount++}`;

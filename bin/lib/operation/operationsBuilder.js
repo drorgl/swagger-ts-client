@@ -31,7 +31,7 @@ class OperationsBuilder {
             httpVerbs.forEach((verb) => {
                 const opr = swPath[verb];
                 if (opr) {
-                    const operation = new operation_1.Operation(verb, url, opr, this.typeManager);
+                    const operation = new operation_1.Operation(verb, url, opr, swPath.parameters, this.typeManager);
                     const group = this.getGroup(operation.groupName);
                     group.operations.push(operation);
                     group.addImportedTypes(operation.importedTypes);
