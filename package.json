@@ -26,7 +26,7 @@
     "lint": "tslint --fix --project ./tsconfig.json --format verbose"
   },
   "author": "kjayasa <gitdev@jayk.me>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "change-case": "3.1.0",
     "commander": "2.19.0",
