@@ -25,6 +25,13 @@ import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path
     {{info.license.name}}
     {{info.license.url}}
     {{/if}}
+
+    {{#if info.termsOfService}}
+    Terms of Service:
+    {{info.termsOfService}}
+    {{/if}}
+
+    
 */
 {{/if}}
 
@@ -40,9 +47,14 @@ export class {{operationGroup.operationsGroupName}} {
     }
 
     {{#each operationGroup.operations}}
-    {{#if swOpr.summary}}
+    {{#if (or swOpr.summary swOpr.description)}}
     /**
+    {{#if swOpr.summary}}
      * {{wrap '     * ' swOpr.summary}}
+    {{/if}}
+    {{#if swOpr.description}}
+     * {{wrap '     * ' swOpr.description}}
+    {{/if}}
     {{#each operationParams}}
      * @param { {{paramType}} } {{this.schema.name}} {{wrap '     *        '  this.schema.description}}
     {{/each}}
