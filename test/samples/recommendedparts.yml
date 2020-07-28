@@ -1,0 +1,200 @@
+---
+swagger: "2.0"
+info:
+  version: 2.0.2
+  title: Recommended Parts
+  description: API to provide recommended parts for given PartNumber. These are parts
+    that you may be interested in given your interest in the provided part number.
+  x-ibm-name: recommended-parts
+  contact:
+    name: ""
+schemes:
+- https
+paths:
+  /recommended:
+    post:
+      tags: []
+      summary: Provides part recommendations
+      operationId: RecommendedParts_RecommendedParts
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: request
+        in: body
+        description: RecommendedPartRequest
+        required: true
+        schema:
+          $ref: '#/definitions/RecommendedPartsRequestV2'
+      - name: Authorization
+        type: string
+        required: true
+        in: header
+        description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+          target="_blank">OAuth 2.0 Documentation</a> page for more info.
+      - name: X-fakeKEY-Locale-Language
+        type: string
+        required: false
+        in: header
+        description: 'Two letter code for language to search on. Langauge must be
+          supported by the selected site. If searching on keyword, this language is
+          used to find matches. Acceptable values include: en, de, fr, zh, it, ja,
+          es, ko, sv, sl, sk, pt, pl, no, nl, ru, he, hu, el.'
+      - name: X-fakeKEY-Locale-Site
+        type: string
+        required: false
+        in: header
+        description: 'Two letter code for fake-Key part website to search on. Different
+          county''s sites have different part restrictions, supported languages, and
+          currencies. Acceptable values include: US, AU, AT, BE, BG, CA, CN, CZ, DK,
+          EE, FI, FR, DE, GR, HK, HU, IE, IL, IT, JP, LV, LT, LU, MX, NL, NZ, NO,
+          PL, PT, SG, SK, KR, ES, SE, CH, TW, GB, TH, PH.'
+      - name: X-fakeKEY-Locale-Currency
+        type: string
+        required: false
+        in: header
+        description: 'Three letter code for Currency to return part pricing for. Currency
+          must be supported by the selected site. Acceptable values include: USD,
+          AUD, EUR, CAD, CNY, DKK, HKD, ILS, JPY, NZD, NOK, SGD, KRW, SEK, TWD, GBP,
+          PHP, THB.'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/RecommendedPartsResponseV2'
+        400:
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        503:
+          description: ServiceUnavailable
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      description: Provides part recommendations for the given part. Matches recommendations
+        on the fake-Key website.
+definitions:
+  RecommendedPartsRequestV2:
+    required:
+    - PartNumber
+    type: object
+    properties:
+      SearchOptionList:
+        description: List of searchOption types to be used for the search
+        type: array
+        items:
+          enum:
+          - LeadFree
+          - CollapsePackingTypes
+          - ExcludeNonStock
+          - Has3DModel
+          - InStock
+          - ManufacturerPartSearch
+          - NewProductsOnly
+          - RoHSCompliant
+          type: string
+      RecordCount:
+        format: int32
+        type: integer
+        example: "5"
+        description: Maximum number of recommendations to return.
+      PartNumber:
+        type: string
+        example: cr2032
+        description: Part number to get recommendations for. Can be fake-Key or Manufacturer.
+          Not all parts have recommendations.
+  RecommendedPartsResponseV2:
+    type: object
+    properties:
+      RecommendedPartsCollection:
+        description: List of RecommendedPartsCollections - each containing a Part
+          and its recommendations.
+        type: array
+        items:
+          $ref: '#/definitions/RecommendedPartsCollectionV2'
+  RecommendedPartsCollectionV2:
+    type: object
+    properties:
+      PartNumber:
+        description: The part number that the recommendations are for.
+        type: string
+        example: P5555-ND
+      RecommendedParts:
+        description: A part that you may be interested in.
+        type: array
+        items:
+          $ref: '#/definitions/RecommendedPartV2'
+  ErrorResponse:
+    type: object
+    properties:
+      HttpStatusCode:
+        description: The HTTP status code.
+        type: integer
+        example: "503"
+      Message:
+        description: Message describing the error.
+        type: string
+        example: Service is unavailable
+  RecommendedPartV2:
+    type: object
+    properties:
+      fakeKeyPartNumber:
+        type: string
+        example: P5555-ND
+        description: fake-Key part number.
+      ManufacturerPartNumber:
+        type: string
+        description: The manufacturer part number.
+        example: ECA-1VHG102
+      ManufacturerName:
+        type: string
+        description: The name of the manufacturer.
+        example: Panasonic
+      ImageUrl:
+        type: string
+        description: Image URL if available.
+        example: http://media.fakekey.com/Photos/Panasonic%20Photos/NHG12-SERIES_tmb.jpg
+      CatalogDescription:
+        type: string
+        description: Catalog description of part.
+        example: CAP ALUM 1000UF 20% 35V RADIAL
+      QuantityAvailable:
+        format: int32
+        type: integer
+        example: "85107"
+        description: Quantity of the part available for immediate sale.
+      UnitPrice:
+        format: double
+        type: number
+        description: The catalog price for a single unit of this part.
+        example: 0.820000
+      DetailPageUrl:
+        type: string
+        description: URL of the fake-Key catalog page to purchase the part. This is
+          based on your provided header Locale values.
+        example: /product-detail/en/panasonic-electronic-components/ECA-1VHG102/P5555-ND/245154
+    description: Lightweight part object containing basic part information.
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+basePath: /recommendedparts/v2
+consumes:
+- application/json
+produces:
+- application/json
+security:
+- Client_Id: []
+securityDefinitions:
+  Client_Id:
+    type: apiKey
+    description: User's Application IBM Client ID
+    in: header
+    name: X-IBM-Client-Id
+x-ibm-endpoints:
+- endpointUrl: https://api.fakekey.com/services
+  description: Base Gateway API Endpoint
+  type:
+  - production
+  - development
+...

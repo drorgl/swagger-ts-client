@@ -1,0 +1,265 @@
+---
+swagger: "2.0"
+info:
+  version: 2.1.1
+  title: OrderStatus
+  x-ibm-name: orderstatusapi
+  description: Retrieve order status for a given order. Also view related information
+    such as tracking numbers and shipment info.
+schemes:
+- https
+paths:
+  /orderStatus/{customerId}/{salesOrderId}:
+    get:
+      tags:
+      - OrderStatus
+      summary: Retrieve order status for given SalesOrderId and CustomerId
+      operationId: OrderStatus_orderstatus
+      parameters:
+      - name: customerId
+        in: path
+        description: CustomerId (customer number) that is on the fake-Key account
+          with which you authenticated
+        required: true
+        type: integer
+        format: int32
+      - name: salesOrderId
+        in: path
+        description: SalesOrderId belonging to the customerId that you wish to lookup
+        required: true
+        type: integer
+        format: int32
+      - name: Authorization
+        type: string
+        required: true
+        in: header
+        description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+          target="_blank">OAuth 2.0 Documentation</a> page for more info.
+      - name: rootAccount
+        type: boolean
+        required: false
+        in: query
+        description: Optional parameter. If true will lookup orders for any account
+          associated with the CustomerIDs root account. This is used in cases where
+          your company has multiple representatives with unique CustomerIDs but all
+          sharing a root.
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/OrderStatusResponse'
+      deprecated: false
+      consumes:
+      - application/json
+      produces:
+      - application/json
+definitions:
+  OrderStatusResponse:
+    description: OrderStatus response
+    type: object
+    properties:
+      SalesOrderId:
+        format: int32
+        description: SalesOrderId
+        type: integer
+        example: "12345678"
+      CustomerNumber:
+        format: int32
+        description: CustomerNumber
+        type: integer
+        example: "1234567"
+      AccountNumber:
+        format: int32
+        description: AccountNumber
+        type: integer
+        example: "123456"
+      EmailAddress:
+        description: EmailAddress
+        type: string
+        example: do-not-reply@fakekey.com
+      PurchaseOrder:
+        description: PurchaseOrder
+        type: string
+        example: examplePONote
+      PaymentMethod:
+        description: PaymentMethod
+        type: string
+        example: VISA
+      ShippingMethod:
+        description: ShippingMethod
+        type: string
+        example: FedEx Ground
+      BackorderShippingMethod:
+        description: Backordershippingmethod
+        type: string
+        example: UPS Ground
+      BackorderShipperAccountNumber:
+        description: Backordershippingmethod
+        type: string
+        example: "123456"
+      ShipmentType:
+        description: ShipmentType
+        type: string
+        example: Standard
+      ShipAddress:
+        description: ShipAddress
+        $ref: '#/definitions/AddressInfo'
+      BillingAddress:
+        description: BillingAddress
+        $ref: '#/definitions/AddressInfo'
+      TrackingDetails:
+        description: Shipping Info
+        type: array
+        items:
+          $ref: '#/definitions/ShippingDetail'
+      OrderDetails:
+        description: OrderInfo
+        type: array
+        items:
+          $ref: '#/definitions/OrderDetail'
+  AddressInfo:
+    description: AddressInfo
+    type: object
+    properties:
+      CompanyName:
+        description: CompanyName
+        type: string
+        example: fake-Key Electronics
+      FirstName:
+        description: FirstName
+        type: string
+        example: John
+      LastName:
+        description: LastName
+        type: string
+        example: Doe
+      Addrline_1:
+        description: Addrline_1
+        type: string
+        example: 701 Brooks Avenue South
+      Addrline_2:
+        description: Addrline_2
+        type: string
+        example: PO Box 677
+      Addrline_3:
+        description: Addrline_3
+        type: string
+        example: ""
+      CityName:
+        description: CityName
+        type: string
+        example: Thief River Falls
+      StateCode:
+        description: StateCode
+        type: string
+        example: MN
+      ZipCode:
+        description: ZipCode
+        type: string
+        example: "56701"
+      Country:
+        description: Country
+        type: string
+        example: US
+  ShippingDetail:
+    description: Invoice Object
+    type: object
+    properties:
+      CarrierId:
+        description: CarrierId
+        type: string
+        example: UPS
+      CarrierPackageId:
+        description: CarrierPackageId
+        type: string
+        example: "123456789"
+      DateTransaction:
+        format: date-time
+        description: ISO 8601 datetime
+        type: string
+        example: "2018-04-18T09:47:46.8626499Z"
+      ShippingMethod:
+        description: ShippingMethod
+        type: string
+        example: UPS Ground
+      ShippingURL:
+        description: ShippingURL
+        type: string
+      InvoiceId:
+        format: int32
+        description: InvoiceId
+        type: integer
+      CanceledOrVoided:
+        type: boolean
+        description: Whether or not the order was cancled or voided
+        example: "false"
+  OrderDetail:
+    description: OrderInfo Object
+    type: object
+    properties:
+      Quantity:
+        format: int32
+        description: Quantity
+        type: integer
+        example: "10"
+      PartNumber:
+        description: PartNumber
+        type: string
+        example: P5555-ND
+      Description:
+        description: Description
+        type: string
+        example: CAP ALUM 1000UF 20% 35V RADIAL
+      CustomerReference:
+        description: CustomerReference
+        type: string
+        example: example
+      Backorder:
+        format: int32
+        description: Backorder
+        type: integer
+        example: "5"
+      UnitPrice:
+        format: float
+        description: UnitPrice
+        type: number
+        example: 0.623000
+      ExtendedPrice:
+        format: float
+        description: ExtendedPrice
+        type: number
+        example: 6.230000
+      QuantityShipped:
+        format: int64
+        description: QuantityShipped
+        type: integer
+        example: "0"
+      InvoiceId:
+        format: int64
+        description: InvoiceId
+        type: integer
+        example: "123456789"
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+basePath: /orderStatus/v2
+produces:
+- application/json
+securityDefinitions:
+  Client ID:
+    type: apiKey
+    description: User's Application IBM Client ID
+    in: header
+    name: X-IBM-Client-Id
+security:
+- Client ID: []
+consumes:
+- application/json
+x-ibm-endpoints:
+- endpointUrl: https://api.fakekey.com/services
+  description: Base Gateway API Endpoint
+  type:
+  - production
+  - development
+...

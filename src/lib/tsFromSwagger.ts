@@ -1,5 +1,5 @@
 import * as Swagger from "swagger-schema-official";
-import {logger} from "./logger";
+import { logger } from "./logger";
 import { OperationsBuilder } from "./operation/operationsBuilder";
 import { OperationsGroupRender } from "./renderer/operationsGroupRenderer";
 import { TypesDefinitionRender } from "./renderer/typesDefinitionRender";
@@ -17,17 +17,17 @@ export class TsFromSwagger {
         await this.render();
     }
     private async getSwagger() {
-       return await getProvider().provide(settings, logger);
+        return await getProvider().provide(settings, logger);
     }
 
-    private getBasePath(swagger: Swagger.Spec){
+    private getBasePath(swagger: Swagger.Spec) {
         let base = swagger.basePath;
         const host: string = swagger.host;
         const schemes = swagger.schemes;
 
-        if (swagger["x-ibm-endpoints"]){
+        if (swagger["x-ibm-endpoints"]) {
             let ibmEndpoints = swagger["x-ibm-endpoints"];
-            if (ibmEndpoints[0] && ibmEndpoints[0].endpointUrl){
+            if (ibmEndpoints[0] && ibmEndpoints[0].endpointUrl) {
                 return ibmEndpoints[0].endpointUrl;
             }
         }
@@ -37,12 +37,12 @@ export class TsFromSwagger {
             base = base.substring(0, notSlashIndex);
         }
 
-        if (host){
+        if (host) {
             base = host + base;
         }
 
-        if (schemes !== undefined && schemes.length > 0){
-            if (schemes.find(function(x) {return x.toLowerCase() == "https"; })){
+        if (schemes !== undefined && schemes.length > 0) {
+            if (schemes.find(function (x) { return x.toLowerCase() == "https"; })) {
                 base = "https://" + base;
             } else {
                 base = "http://" + base;
@@ -54,11 +54,11 @@ export class TsFromSwagger {
 
     private adjustSwaggerPaths(swagger: Swagger.Spec) {
 
-        const newPaths: {[pathName: string]: Swagger.Path} = {};
+        const newPaths: { [pathName: string]: Swagger.Path } = {};
 
         const checkPathParam = (name: string, paths: Swagger.Path) => {
             for (const k of Object.keys(paths)) {
-                const params = (paths[k].parameters) ? paths[k].parameters : paths.parameters;
+                const params = paths[k].parameters || paths.parameters;
 
                 if (params) {
                     for (let i = 0; i < params.length; i++) {
@@ -73,6 +73,17 @@ export class TsFromSwagger {
                             }
                         }
                     }
+                }
+            }
+
+            //no parameter found, fallback to general parameters
+            let fallbackParam = swagger.parameters[name] as Swagger.QueryParameter;
+            if (fallbackParam) {
+                if (fallbackParam.type === "string") {
+                    return "encodeURIComponent(" + name + ")";
+                }
+                else {
+                    return name;
                 }
             }
         };
@@ -103,10 +114,14 @@ export class TsFromSwagger {
     }
     private async render() {
         const swagger = await this.getSwagger();
+
         this.adjustSwaggerPaths(swagger);
+
         let basePath = this.getBasePath(swagger);
         let info = swagger.info;
+
         const typeManager = new TypeBuilder(swagger.definitions);
+
         await this.renderOperationGroups(basePath, info, swagger.paths, swagger.parameters, typeManager);
         await this.renderTypes(info, typeManager);
     }
@@ -120,8 +135,7 @@ export class TsFromSwagger {
             renderer = new TypesDefinitionRender();
 
         logger.info(`Writing Types to ${settings.type.outPutPath}`);
-
-        await renderer.render(stream, Object.assign({}, {types: typeManager.getAllTypes()}, {info}));
+        await renderer.render(stream, Object.assign({}, { types: typeManager.getAllTypes() }, { info }));
         stream.end();
     }
 
@@ -131,16 +145,16 @@ export class TsFromSwagger {
         paths: {
             [pathName: string]: Swagger.Path,
         },
-        generalParameters: {[parameterName: string]: Swagger.BodyParameter|Swagger.QueryParameter},
+        generalParameters: { [parameterName: string]: Swagger.BodyParameter | Swagger.QueryParameter },
         typeManager) {
         const renderer = new OperationsGroupRender(),
             opsBuilder = new OperationsBuilder(paths, generalParameters, typeManager);
         opsBuilder.getAllGroups().forEach(async (g) => {
             const opsName = settings.operations.outFileNameTransformFn(g.operationsGroupName);
-            const stream = createWriteStream(settings.operations.outPutPath, opsName );
+            const stream = createWriteStream(settings.operations.outPutPath, opsName);
             logger.info(`Writing Operation ${opsName}  to ${settings.operations.outPutPath}`);
 
-            await renderer.render(stream, Object.assign({}, g, {basePath, info}));
+            await renderer.render(stream, Object.assign({}, g, { basePath, info }));
             stream.end();
         });
     }

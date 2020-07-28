@@ -1,21 +1,21 @@
 import * as Swagger from "swagger-schema-official";
-import {logger} from "../logger";
-import {HttpVerb} from "../settings";
-import {IType, TypeBuilder} from "../type/typeBuilder";
-import {Operation} from "./operation";
+import { logger } from "../logger";
+import { HttpVerb } from "../settings";
+import { IType, TypeBuilder } from "../type/typeBuilder";
+import { Operation } from "./operation";
 
-export interface ISwaggerInfo{
+export interface ISwaggerInfo {
     info: Swagger.Info;
 }
-export interface ITypeInfo{
+export interface ITypeInfo {
     types: IType[];
 }
 
-export interface IBasePath{
+export interface IBasePath {
     basePath: string;
 }
 
-export interface IOperationsGroup{
+export interface IOperationsGroup {
     operationsGroupName: string;
     operations: IOperation[];
     importedTypes: string[];
@@ -25,6 +25,7 @@ export interface IOperation {
     operationName: string;
     operationParams: IOperationParam[];
     responsesType: string;
+    // responsesTypeStream: boolean;
     httpVerb: string;
     operationUrl: string;
 }
@@ -48,9 +49,9 @@ class OperationsGroup implements IOperationsGroup {
     ) {
 
     }
-    public addImportedTypes(typeNames: string[]){
+    public addImportedTypes(typeNames: string[]) {
         typeNames.forEach((tn) => {
-            if (!this.importedTypes.includes(tn)){
+            if (!this.importedTypes.includes(tn)) {
                 this.importedTypes.push(tn);
             }
         });
@@ -58,12 +59,12 @@ class OperationsGroup implements IOperationsGroup {
 }
 
 export class OperationsBuilder {
-    private opsGroups: Map < string, OperationsGroup > = new Map();
+    private opsGroups: Map<string, OperationsGroup> = new Map();
     constructor(
         private paths: {
             [pathName: string]: Swagger.Path,
         },
-        private generalParameters: {[parameterName: string]: Swagger.BodyParameter|Swagger.QueryParameter},
+        private generalParameters: { [parameterName: string]: Swagger.BodyParameter | Swagger.QueryParameter },
         private typeManager: TypeBuilder) {
         this.buildGroups();
     }
@@ -76,8 +77,8 @@ export class OperationsBuilder {
 
             httpVerbs.forEach((verb) => {
                 const opr = swPath[verb] as Swagger.Operation;
-                if (opr){
-                    const operation = new Operation(verb, url, opr, swPath.parameters, this.generalParameters, this.typeManager);
+                if (opr) {
+                    const operation = new Operation(verb, url, opr, swPath.parameters as Swagger.Parameter[], this.generalParameters, this.typeManager);
                     const group = this.getGroup(operation.groupName);
                     group.operations.push(operation);
                     group.addImportedTypes(operation.importedTypes);
@@ -86,13 +87,13 @@ export class OperationsBuilder {
         }
     }
 
-    public getAllGroups(){
+    public getAllGroups() {
         return [...this.opsGroups.values()] as IOperationsGroup[];
     }
-    private getGroup(groupName: string): OperationsGroup{
-        if (this.opsGroups.has(groupName)){
-           return this.opsGroups.get(groupName);
-        }else{
+    private getGroup(groupName: string): OperationsGroup {
+        if (this.opsGroups.has(groupName)) {
+            return this.opsGroups.get(groupName);
+        } else {
             const group = new OperationsGroup(groupName);
             this.opsGroups.set(groupName, group);
             return group;

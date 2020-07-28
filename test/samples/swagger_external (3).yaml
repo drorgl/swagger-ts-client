@@ -1,0 +1,261 @@
+swagger: '2.0'
+x-default-token: 7c7c777c-f123-4123-s123-7c7c777c7c77
+info:
+  description: >
+    This API allows to determine the fuel level and remaining distance of connected arik-Benz vehicles remotely.
+
+    Data is categorized into resources and containers for the polling interface.
+    They are defined as follows:
+
+    * *Resource*: A resource is a single information about a vehicle. It's a
+    measurement that consists of a name (also referred to as resource ID), a
+    value, and an associated timestamp. See below for a list and description of
+    all resources that this API provides.
+
+    * *Container*: A container is a set of resources that are defined to group
+    data for a certain use case.
+
+
+    The interface is a ISO 20078-compliant REST endpoint to query the latest data for a vehicle.
+    If the vehicle did not send an update for a resource within 11 hours, the response will be empty.
+
+    ## Resources
+
+    This is an alphabetical list of all resources that the API provides.
+
+    Name | Description | Unit/Range
+
+    ---- | ----------- | ----------
+
+    rangeliquid | Liquid fuel tank range | 0..2046 km
+
+    tanklevelpercent | 	Liquid fuel tank level | 0…100 %
+  version: '1.0'
+  title: Fuel Status API
+  contact:
+    name: The open API platform by arik-Benz
+host: api.arik-benz.com
+basePath: /vehicledata_tryout/v1
+schemes:
+  - https
+tags:
+  - name: Container Fuel Status
+    description: Fuel Status service for view all Fuel Status vehicle data points
+  - name: Resources
+    description: Fuel Status service for view all accessible resources
+  - name: Tank level resource
+    description: Fuel Status service for view gas tank level resource
+  - name: Range liquid resource
+    description: Fuel Status service for view range liquid resource
+paths:
+  '/vehicles/{vehicleId}/containers/fuelstatus':
+    get:
+      tags:
+        - Container Fuel Status
+      summary: >-
+        Returns all resources for the provided 'fuelstatus', data can be
+        filtered for a certain time range.
+      operationId: getResourcesForContainerIdUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/FuelStatus'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources':
+    get:
+      tags:
+        - Resources
+      summary: >-
+        Returns all available resources for the provided vehicle identification
+        number.
+      operationId: getAllResourcesForVinUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResourceMetaInfo'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/tanklevelpercent':
+    get:
+      tags:
+        - Tank level resource
+      summary: >-
+        Returns the latest available tank level resource for the vehicle
+        identification number.
+      operationId: getLatestTankLevelUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              tanklevelpercent:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/rangeliquid':
+    get:
+      tags:
+        - Range liquid resource
+      summary: >-
+        Returns the latest available range liquid level resource for the vehicle
+        identification number.
+      operationId: getLatestRangeliquidUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              rangeliquid:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+definitions:
+  Resource:
+    type: object
+    properties:
+      value:
+        type: string
+      timestamp:
+        type: integer
+    title: Resource
+  FuelStatus:
+    type: object
+    properties:
+      rangeliquid:
+        $ref: '#/definitions/Resource'
+      tanklevelpercent:
+        $ref: '#/definitions/Resource'
+    title: FuelStatus
+  ResourceMetaInfo:
+    type: object
+    properties:
+      href:
+        type: string
+      name:
+        type: string
+      version:
+        type: string
+    title: ResourceMetaInfo
+  ExVeError:
+    type: object
+    properties:
+      exveErrorId:
+        type: string
+      exveErrorMsg:
+        type: string
+      exveErrorRef:
+        type: string
+    title: ExVeError

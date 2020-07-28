@@ -1,0 +1,198 @@
+---
+swagger: "2.0"
+info:
+  version: 1.0.1
+  title: Barcode
+  x-ibm-name: barcodeapi
+  description: Converts barcodes on fake-Key packaging or invoices to useful information
+schemes:
+- https
+paths:
+  /productqrcode:
+    post:
+      responses:
+        200:
+          description: 200 OK
+      parameters:
+      - name: Authorization
+        type: string
+        required: true
+        in: header
+        description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+          target="_blank">OAuth 2.0 Documentation</a> page for more info.
+      - name: QRCodeInput
+        required: true
+        in: body
+        schema:
+          $ref: '#/definitions/QRCodeInput'
+        description: QRcode from a fake-Key product label. The QR code contains special
+          ASCII symbols. These MUST be encoded to be sent through the API. Please
+          ensure the Record Separator character is encoded as \u241E and the Group
+          Separator character is encoded as \u241D
+      description: QRcode from a fake-Key product label. The QR code contains special
+        ASCII symbols. These MUST be encoded to be sent through the API. Please ensure
+        the Record Separator character is encoded as \u241E and the Group Separator
+        character is encoded as \u241D
+      summary: Converts a product 2d barcode to fake-Key and Manufacturer part number
+        and quantity. The barcode this takes in qrcode located on the label on the
+        anti-static bag. The QR code contains special ASCII symbols. These MUST be
+        encoded to be sent through the API. Please ensure the Record Separator character
+        is encoded as \u241E and the Group Separator character is encoded as \u241D
+  /productbarcode/{barcode}:
+    get:
+      tags:
+      - Barcode
+      summary: Converts a product barcode to fake-Key and Manufacturer part number
+        and quantity. The barcode this takes in is a 1 dimensional barcode located
+        on the label on the anti-static bag.
+      operationId: Barcode_ProductBarcode
+      parameters:
+      - name: barcode
+        in: path
+        description: Product barcode located on the product's anti-static bag.
+        required: true
+        type: string
+      - name: Authorization
+        type: string
+        required: true
+        in: header
+        description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+          target="_blank">OAuth 2.0 Documentation</a> page for more info.
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/BarcodeResponse'
+      deprecated: false
+  /invoicebarcode/{barcode}:
+    get:
+      tags:
+      - Barcode
+      summary: Converts an invoice/pack list barcode to information about the order.
+        The barcode this takes in is a 1 dimensional barcode located in the lower
+        left corner of the invoice.
+      operationId: Barcode_InvoiceBarcode
+      parameters:
+      - name: barcode
+        in: path
+        description: Invoice barcode located on the invoice in the lower left corner.
+        required: true
+        type: string
+      - name: Authorization
+        type: string
+        required: true
+        in: header
+        description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+          target="_blank">OAuth 2.0 Documentation</a> page for more info.
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/InvoiceBarcodeResponse'
+      deprecated: false
+definitions:
+  QRCodeInput:
+    properties:
+      QRCode:
+        type: string
+        description: QRcode from a fake-Key product label. Ensure you are not omitting
+          the special group separator character
+        example: ""
+    additionalProperties: false
+    description: QRcode from a fake-Key product label. Ensure you are not omitting
+      the special group separator character from the scan (ASCII code 29)
+    required:
+    - QRCode
+  BarcodeResponse:
+    type: object
+    properties:
+      Status:
+        description: Status of data lookup.
+        type: string
+        example: Success
+      fakeKeyPartNumber:
+        description: fake-Key Part Number
+        type: string
+        example: p5555-nd
+      ManufacturerPartNumber:
+        description: Manufacturer Part Number
+        type: string
+        example: ECA-1VHG102
+      ManufacurerName:
+        description: Manufacturer Name
+        type: string
+        example: Panasonic
+      Description:
+        description: Description of part
+        type: string
+        example: CAP ALUM 1000UF 20% 35V RADIAL
+      Quantity:
+        format: int32
+        description: Quantity of part
+        type: integer
+        example: 1
+    description: Response object containing part information
+  InvoiceBarcodeResponse:
+    type: object
+    properties:
+      Status:
+        description: Status of data lookup.
+        type: string
+        example: Success
+      SalesOrder:
+        format: int32
+        description: Sales Order number
+        type: integer
+        example: 12345678
+      Invoice:
+        format: int32
+        description: Invoice number
+        type: integer
+        example: 12345678
+      Packlist:
+        format: int32
+        description: Packlist page number
+        type: integer
+        example: 1
+      Details:
+        description: List of invoice details
+        type: array
+        items:
+          $ref: '#/definitions/InvoiceDetail'
+  InvoiceDetail:
+    type: object
+    properties:
+      fakeKeyPartNumber:
+        description: fake-Key part number
+        type: string
+        example: p5555-nd
+      Quantity:
+        format: int32
+        description: Quantity
+        type: integer
+        example: 1
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+basePath: /barcode/v1
+produces:
+- application/xml
+- application/json
+securityDefinitions:
+  Client ID:
+    type: apiKey
+    description: User's Application IBM Client ID
+    in: header
+    name: X-IBM-Client-Id
+security:
+- Client ID: []
+consumes:
+- application/json
+x-ibm-endpoints:
+- endpointUrl: https://api.fakekey.com/services
+  description: Base Gateway API Endpoint
+  type:
+  - production
+  - development
+...

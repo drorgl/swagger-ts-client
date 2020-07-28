@@ -15,8 +15,12 @@
         "kjayasa",
         "pegjs",
         "petstore",
+        "precommit",
         "superagent",
+        "typedoc",
         "ungrouped",
         "wordwrap"
-    ]
+    ],
+    "javascript.referencesCodeLens.enabled": true,
+    "typescript.referencesCodeLens.enabled": true
 }

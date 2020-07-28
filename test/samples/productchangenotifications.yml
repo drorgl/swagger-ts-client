@@ -1,0 +1,139 @@
+---
+swagger: "2.0"
+info:
+  version: 1.0.3
+  title: Product Change Notifications
+  description: This API provides all product change notifications for a given fake-Key
+    part.
+  termsOfService: ""
+  contact:
+    url: https://api-portal.fakekey.com/help
+  x-ibm-name: product-change-notifications-api
+paths:
+  /getpcns/{fakekeypartnumber}:
+    get:
+      tags:
+      - Pcn
+      operationId: Pcn_Getpcns
+      consumes: []
+      produces:
+      - application/json
+      - text/plain
+      parameters:
+      - name: fakekeypartnumber
+        in: path
+        required: true
+        type: string
+        description: fake-Key part number
+      - name: Authorization
+        in: header
+        description: Put OAuth Bearer Token here. Please see<a href= "https://api-portal.fakekey.com/app_overview"
+          target= "_blank" > OAuth 2.0 Documentation </ a > page for more info.
+        required: true
+        type: string
+      - name: X-fakeKEY-Locale-Site
+        in: header
+        description: 'Two letter code for fake-Key part website to search on. Different
+          county''s sites have different part restrictions, supported languages, and
+          currencies. Acceptable values include: US, CA, JP, UK, DE, AT, BE, DK, FI,
+          GR, IE, IT, LU, NL, NO, PT, ES, KR, HK, SG, CN, TW, ALTERA, AU, FR, IN,
+          NZ, SE, MX, CH, IL, PL, SK, SI, LV, LT, EE, CZ, HU, BG, MY, ZA, RO.'
+        required: false
+        type: string
+      - name: X-fakeKEY-Locale-Language
+        in: header
+        description: 'Two letter code for language to search on. Langauge must be
+          supported by the selected site. If searching on keyword, this language is
+          used to find matches. Acceptable values include: en, ja, de, fr, ko, zhs,
+          zht, it, es, he.'
+        required: false
+        type: string
+      - name: X-fakeKEY-Customer-Id
+        in: header
+        description: Your fake-Key Customer id
+        required: false
+        type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/PcnResponse'
+        400:
+          description: Bad Request
+        503:
+          description: Server Error
+      description: This operation provides all product change notifications for a
+        given fake-Key part.
+definitions:
+  PcnResponse:
+    required:
+    - fakeKeyPartNumber
+    - ProductChangeNotifications
+    type: object
+    properties:
+      fakeKeyPartNumber:
+        type: string
+        example: PN200A-ND
+        description: The fake-Key part number being submitted.
+      ProductChangeNotifications:
+        uniqueItems: false
+        type: array
+        items:
+          $ref: '#/definitions/PcnDataResponse'
+        description: An array of PCNDataResponses.
+    description: This contains an array of PCN data responses.
+  PcnDataResponse:
+    type: object
+    properties:
+      fakeKeyPartNumber:
+        type: string
+        description: The fake-Key part number being submitted.
+        example: PN200A-ND
+      PcnChangeDate:
+        type: string
+        description: The date of the product change notification - ISO 8601
+        example: "2018-11-26T20:49:13Z"
+      PcnTypeId:
+        type: string
+        description: The product change notification type id.
+        example: "38"
+      PcnType:
+        type: string
+        description: The description of the product change notification type.
+        example: PCN Design/Specification
+      PcnDescription:
+        type: string
+        description: A brief description of the change.
+        example: Logo 17/Aug/2017
+      PcnLink:
+        type: string
+        description: A link to a document detailing the product change.
+        example: https://media.fakekey.com/pdf/PCNs/On%20Semi/P774AAB.pdf
+    description: This contains the details of each product change notification.
+    additionalProperties: true
+securityDefinitions:
+  Client ID:
+    name: X-IBM-Client-Id
+    in: header
+    type: apiKey
+    description: User's Application IBM Client Id
+security:
+- Client ID: []
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+basePath: /pcn/v1
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+x-ibm-endpoints:
+- endpointUrl: https://api.fakekey.com/services
+  description: Base Gateway API Endpoint
+  type:
+  - production
+  - development
+...

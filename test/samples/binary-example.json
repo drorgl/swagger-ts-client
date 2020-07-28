@@ -1,0 +1,53 @@
+{
+    "info": {
+        "title": "Binary Server",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/get": {
+            "post": {
+                "summary": "get resource",
+                "description": "Retrieves a resource from a url",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "description": "request body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "url": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "url to retrieve"
+                                }
+                            }
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string",
+                            "format": "binary"
+                        }
+                    }
+                },
+                "tags": [
+                    "Caching"
+                ],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "responses": {},
+    "definitions": {},
+    "tags": [],
+    "swagger": "2.0",
+    "securityDefinitions": null
+}

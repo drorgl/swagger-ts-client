@@ -68,3 +68,5 @@ ts-client.config.js
 
 tmp
 /test/samples/out
+/docs/html
+/bin

@@ -1,6 +1,6 @@
 {
   "name": "@drorgl/swagger-ts-client",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "A tool to generate typescript http clients and types from swagger definitions",
   "main": "./bin/main.js",
   "bin": "./bin/main.js",
@@ -23,13 +23,20 @@
     "build:lambdaParser": "pegjs -o ./src/lib/parsers/lambdaParser/parser.generated.js ./src/lib/parsers/lambdaParser/grammar.pegjs",
     "build:typeParser": "pegjs -o ./src/lib/parsers/typeNameParser/parser.generated.js ./src/lib/parsers/typeNameParser/grammar.pegjs",
     "build:parsers": "npm run build:lambdaParser && npm run build:typeParser",
-    "lint": "tslint --fix --project ./tsconfig.json --format verbose"
+    "lint": "tslint --fix --project ./tsconfig.json --format verbose",
+    "lint:test": "tslint --fix --format verbose test/**/*.ts?(x) ",
+    "precommit": "npm run lint && npm run build:dryrun && npm run test",
+    "coverage": "rimraf ./coverage && nyc mocha -r ts-node/register -r source-map-support/register --ui bdd test/**/*.spec.ts",
+    "coverage:ci": "rimraf ./coverage && nyc mocha -r ts-node/register -r source-map-support/register --ui bdd test/**/*.spec.ts -g integration -i",
+    "doc:clean": "rimraf ./docs/html",
+    "doc": "npm run doc:clean && typedoc --tsconfig tsconfig.json  --plugin none",
+    "publish-new": "npm publish --access public"
   },
   "author": "kjayasa <gitdev@jayk.me>",
   "license": "MIT",
   "dependencies": {
     "change-case": "3.1.0",
-    "commander": "2.19.0",
+    "commander": "6.0.0",
     "handlebars": "4.1.1",
     "js-yaml": "^3.13.1",
     "mkdirp": "0.5.1",
@@ -40,19 +47,23 @@
     "wordwrap": "^1.0.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.7",
+    "@types/chai": "^4.2.12",
     "@types/commander": "^2.12.2",
-    "@types/js-yaml": "^3.12.1",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^8.0.21",
-    "@types/superagent": "^4.1.1",
-    "@types/swagger-schema-official": "^2.0.5",
+    "@types/js-yaml": "^3.12.5",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^14.0.26",
+    "@types/superagent": "^4.1.8",
+    "@types/swagger-schema-official": "^2.0.21",
     "@types/wordwrap": "^1.0.0",
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "dir-compare": "^2.3.0",
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0",
     "pegjs": "^0.10.0",
-    "tslint": "5.14.0",
-    "typescript": "3.3.4000"
+    "rimraf": "^3.0.2",
+    "tslint": "6.1.2",
+    "typedoc": "^0.17.8",
+    "typescript": "3.9.7"
   },
   "repository": "https://github.com/drogl/swagger-ts-client.git"
 }

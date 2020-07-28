@@ -12,7 +12,7 @@ export class TypesDefinitionRender extends AbstractRenderer<ITypeInfo & ISwagger
     constructor(){
         super({templatePath: settings.type.templateFile});
     }
-    public getTypeAliases(): Array<{alias: string, typeDefinition: string}>{
+    public getTypeAliases(): {alias: string, typeDefinition: string}[]{
        return Object.keys(settings.type.typeAliases).map((alias) => {
             return {
                 alias,

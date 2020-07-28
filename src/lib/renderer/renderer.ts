@@ -62,7 +62,7 @@ export abstract class AbstractRenderer<T> implements IRenderer {
     constructor(options: {
         template?: string,
         templatePath?: string},
-                renderHelpers?: Array<(arg: any[]) => string>){
+                renderHelpers?: ((arg: any[]) => string)[]){
             if (!options || !(options.template || options.templatePath )){
                 throw new Error("Template or Template path is needed");
             }

@@ -1,0 +1,597 @@
+swagger: '2.0'
+x-default-apikey: Tyt82ndiKG0AdH8TCqe001ROh7RsGOKB
+info:
+  description: The Dealer API provides Dealer search functions.
+  version: '1.0'
+  title: Dealer API
+  contact:
+    name: The open API platform by arik-Benz
+host: api.arik-benz.com
+basePath: /dealer_tryout/v1
+schemes:
+  - https
+tags:
+  - name: Dealer search
+    description: Resources that provide search functions for dealers (dealer, garage, retailer, etc.) based on given attributes.
+  - name: References
+    description: Reference data that is required for the Dealer API.
+paths:
+  '/dealers':
+    x-swagger-router-controller: get_dealers
+    get:
+      description: This request returns dealers (dealer, garage, retailer, etc.) for given parameters
+      tags:
+        - Dealer search
+      operationId: dealersGET
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/dealerIds'
+        - $ref: '#/parameters/latitude'
+        - $ref: '#/parameters/longitude'
+        - $ref: '#/parameters/radiusValue'
+        - $ref: '#/parameters/radiusUnit'
+        - $ref: '#/parameters/countryIsoCode'
+        - $ref: '#/parameters/city'
+        - $ref: '#/parameters/legalName'
+        - $ref: '#/parameters/brand'
+        - $ref: '#/parameters/productGroup'
+        - $ref: '#/parameters/activity'
+        - $ref: '#/parameters/fieldsForDealers'
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/HalifiedDealers'
+        '204':
+          description: The search did not match any dealers.
+        '400':
+          description: >-
+            Invalid parameter was specified:
+             * DealerId is not valid
+             * Area search is not valid (latitude or longitude missing or invalid)
+             * Country ISO code is not valid
+             * Brand code is not valid
+             * Product group is not valid
+             * Activity is not valid
+             * Page is not valid
+             * Page size is not valid
+        '401':
+          description: >-
+            Unauthorized:
+              * Failed to resolve API Key query parameter
+              * Invalid API Key
+        '429':
+          description: Quota limit is exceeded
+        '500':
+          description: Internal server error
+  '/countries':
+    x-swagger-router-controller: get_countries
+    get:
+      description: This request returns the countries supported by the Dealer API
+      tags:
+        - References
+      operationId: countriesGET
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/HalifiedCountries'
+        '400':
+          description: >-
+            Invalid parameter was specified:
+             * Page is not valid
+             * Page size is not valid
+        '401':
+          description: >-
+            Unauthorized:
+              * Failed to resolve API Key query parameter
+              * Invalid API Key
+        '429':
+          description: Quota limit is exceeded
+        '500':
+          description: Internal server error
+  '/dealers/{dealerId}':
+    x-swagger-router-controller: get_dealer_by_id
+    get:
+      description: This request returns dealers for given parameters
+      tags:
+        - Dealer search
+      operationId: dealerGET
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/dealerId'
+        - $ref: '#/parameters/fieldsForDealer'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Dealer'
+        '400':
+          description: >-
+            Invalid format for parameter dealerId was specified
+        '401':
+          description: >-
+            Unauthorized:
+              * Failed to resolve API Key query parameter
+              * Invalid API Key
+        '404':
+          description: Dealer not found
+        '429':
+          description: Quota limit is exceeded
+        '500':
+          description: Internal server error
+parameters:
+  dealerId:
+    name: dealerId
+    description: The dealer id is dealer’s business key, also known as GS Id. e.g. GS0000857
+    in: path
+    type: string
+    required: true
+    default: GS0000275
+  dealerIds:
+    name: dealerIds
+    in: query
+    description: |
+      Array of dealer ids. The dealer id is dealer’s business key, also known as GS Id. e.g. GS0000857,GS0017621
+    required: false
+    type: array
+    items:
+      type: string
+  latitude:
+    name: latitude
+    description: The latitude geo coordinate.
+    in: query
+    type: number
+    required: false
+  longitude:
+    name: longitude
+    description: The longitude geo coordinate.
+    in: query
+    type: number
+    required: false
+  radiusValue:
+    name: radiusValue
+    description: >-
+      The radius value of the search area. The center of the search area is defined by geo coordinates. (latitude, longitude properties)
+      If radiusValue and radiusUnit parameters are missing, then the default radius is 10 km.
+    in: query
+    type: integer
+    default: 10
+    required: false
+  radiusUnit:
+    name: radiusUnit
+    description: >-
+      The radius unit of the search area. The center of the search area is defined by geo coordinates. (latitude, longitude properties)
+      If radiusValue and radiusUnit parameters are missing, then the default radius is 10 km.
+    in: query
+    type: string
+    required: false
+    enum:
+      - M
+      - KM
+      - MILE
+    default: KM
+  countryIsoCode:
+    name: countryIsoCode
+    description: The country of the dealer address defined as ISO two letter ID (e.g. DE, CH, CN, etc.)
+    in: query
+    type: string
+    required: false
+  city:
+    name: city
+    description: The city of the dealer address.
+    in: query
+    type: string
+    required: false
+  legalName:
+    name: name
+    description: A name of the dealer, the name filter will be applied to all Dealer names (e.g. legalName, nameAddition). You can also search for parts of Dealer names, e.g. the search term 'Niederlassung' will also match 'Niederlassung Stuttgart'.
+    in: query
+    type: string
+    required: false
+  brand:
+    name: brand
+    description: >-
+      Filter by brand, valid values are:
+        * MB: arik-Benz
+        * SMT: Smart
+    in: query
+    type: string
+    required: false
+    enum:
+      - MB
+      - SMT
+  productGroup:
+    name: productGroup
+    description: >-
+      Filter by a product group
+    in: query
+    type: string
+    required: false
+    enum:
+      - PASSENGER-CAR
+      - VAN
+  activity:
+    name: activity
+    description: >-
+      Filter by activity, valid actitvity values are:
+        * PARTS: Spare Parts Sales
+        * SALES: Sales of new vehicles
+        * SERVICE: Maintaining and repair
+        * USED-VEHICLES-TRADE: Sales of used vehicles
+    in: query
+    type: string
+    required: false
+    enum:
+      - PARTS
+      - SALES
+      - SERVICE
+      - USED-VEHICLES-TRADE
+  page:
+    name: page
+    in: query
+    description: |
+      The index of the page to be returned. If this parameter is omitted, the first page will be returned.
+    required: false
+    type: integer
+    format: int32
+  pageSize:
+    name: pageSize
+    in: query
+    description: |
+      The index of the page to be returned. If this parameter is omitted, the first page will be returned.
+    required: false
+    type: integer
+    format: int32
+  fieldsForDealers:
+    name: fields
+    description: >-
+      Specifies which fields should be included in the result. If this filter is not used, per default all fields are returned.
+      e.g. fields=dealers(dealerId,address(street,city))
+    in: query
+    type: string
+    required: false
+  fieldsForDealer:
+      name: fields
+      description: >-
+        Specifies which fields should be included in the result. If this filter is not used, per default all fields are returned.
+        e.g. fields=dealerId,address(street,city)
+      in: query
+      type: string
+      required: false
+definitions:
+  Link:
+    type: object
+    description: the representation of a link
+    required:
+      - href
+    properties:
+      href:
+        type: string
+        description: the target of the link
+  SelfLink:
+    type: object
+    description: self links
+    properties:
+      self:
+        $ref: '#/definitions/Link'
+  DefaultLinks:
+    type: object
+    description: default links
+    properties:
+      self:
+        $ref: '#/definitions/Link'
+      next:
+        $ref: '#/definitions/Link'
+      previous:
+        $ref: '#/definitions/Link'
+  ProductGroupOfAFunction:
+    type: object
+    required:
+      - code
+      - name
+    properties:
+      code:
+        type: string
+        description: |-
+          The product group code, valid values are:
+            * PASSENGER-CAR
+            * VAN
+      name:
+        type: string
+        description: product group name
+  Address:
+    type: object
+    properties:
+      street:
+        type: string
+        description: 'street and house number, if applicable'
+      addressAddition:
+        type: string
+        description: address addition
+      zipCode:
+        type: string
+        description: postal code
+      city:
+        type: string
+        description: city
+      district:
+        type: string
+        description: 'district, area of city'
+      countryIsoCode:
+        type: string
+        description: ISO A2 country code
+  CommunicationChannels:
+    type: object
+    properties:
+      general:
+        $ref: '#/definitions/General'
+  ActivityOfAFunction:
+    type: object
+    required:
+      - code
+      - name
+    properties:
+      code:
+        type: string
+        description: >-
+          The activity of the dealer, valid actitvity values are:
+            * PARTS: Spare Parts Sales
+            * SALES: Sales of new vehicles
+            * SERVICE: Maintaining and repair
+            * USED-VEHICLES-TRADE: Sales of used vehicles
+      name:
+        type: string
+        description: the corresponding activity name
+  TheDistance:
+    type: object
+    required:
+      - value
+    properties:
+      value:
+        type: number
+        format: double
+        description: numeric amount of distance
+      unit:
+        type: string
+        description: unit of length
+        enum:
+          - M
+          - KM
+          - MILE
+  FunctionOpeningHours:
+    type: object
+    properties:
+      function:
+        $ref: '#/definitions/Function'
+      weekdays:
+        $ref: '#/definitions/Weekdays'
+  Function:
+    type: object
+    required:
+      - activity
+      - brand
+      - productGroup
+    properties:
+      brand:
+        $ref: '#/definitions/Brand'
+      productGroup:
+        $ref: '#/definitions/ProductGroupOfAFunction'
+      activity:
+        $ref: '#/definitions/ActivityOfAFunction'
+  HalifiedDealers:
+    type: object
+    description: dealer with navigation links.
+    required:
+      - _links
+    properties:
+      _links:
+        $ref: '#/definitions/DefaultLinks'
+      dealers:
+        type: array
+        description: dealers
+        items:
+          $ref: '#/definitions/Dealer'
+  Dealer:
+    type: object
+    required:
+      - _links
+      - legalName
+      - dealerId
+    properties:
+      _links:
+        $ref: '#/definitions/SelfLink'
+      dealerId:
+        type: string
+        description: 'GSSN unique ID, main identifier'
+      legalName:
+        type: string
+        description: legal name of the company
+      nameAddition:
+        type: string
+        description: name addition, country specific use
+      brandCodes:
+        type: array
+        description: network brand codes of the dealer, dealer numbers
+        items:
+          $ref: '#/definitions/BrandCode'
+      address:
+        $ref: '#/definitions/Address'
+      region:
+        $ref: '#/definitions/RegionRepresentation'
+      geoCoordinates:
+        $ref: '#/definitions/GeoCoordinates'
+      communication:
+        $ref: '#/definitions/CommunicationChannels'
+      distance:
+        $ref: '#/definitions/TheDistance'
+      functions:
+        type: array
+        description: list of functions for the dealer
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/Function'
+      openingHours:
+        type: array
+        description: |
+          List of opening hours for each customer relevant function for
+          each day
+        uniqueItems: true
+        items:
+          $ref: '#/definitions/FunctionOpeningHours'
+    description: the representation of an dealer
+  Weekdays:
+    type: object
+    description: |
+      opening hours for a week, represented by a map where the key
+      is a weekday and the value is an object containing the time periods. There
+      are a maximum of two time slots for each day. If there exists no opening
+      hours for one day, they will be shown as closed.
+    properties:
+      MONDAY:
+        $ref: '#/definitions/WeekdayInfo'
+      TUESDAY:
+        $ref: '#/definitions/WeekdayInfo'
+      WEDNESDAY:
+        $ref: '#/definitions/WeekdayInfo'
+      THURSDAY:
+        $ref: '#/definitions/WeekdayInfo'
+      FRIDAY:
+        $ref: '#/definitions/WeekdayInfo'
+      SATURDAY:
+        $ref: '#/definitions/WeekdayInfo'
+      SUNDAY:
+        $ref: '#/definitions/WeekdayInfo'
+  WeekdayInfo:
+    type: object
+    properties:
+      status:
+        type: string
+        description: status (OPEN or CLOSED)
+        enum:
+          - OPEN
+          - CLOSED
+      periods:
+        type: array
+        description: time periods
+        items:
+          $ref: '#/definitions/Periods'
+  Brand:
+    type: object
+    required:
+      - code
+      - name
+    properties:
+      code:
+        type: string
+        description: brand qualifier
+      name:
+        type: string
+        description: brand name
+  Periods:
+    type: object
+    required:
+      - from
+      - until
+    properties:
+      from:
+        type: string
+        description: from
+      until:
+        type: string
+        description: until
+  BrandCode:
+    type: object
+    required:
+      - brand
+    properties:
+      brand:
+        $ref: '#/definitions/Brand'
+  HalifiedCountries:
+    type: object
+    required:
+      - _links
+    properties:
+      _links:
+        $ref: '#/definitions/DefaultLinks'
+      countries:
+        type: array
+        description: countries
+        items:
+          $ref: '#/definitions/Country'
+    description: countries and navigation links for additional results.
+  Country:
+    type: object
+    required:
+      - countryId
+      - isoCode
+      - name
+    properties:
+      countryId:
+        type: string
+        description: the country id
+      isoCode:
+        type: string
+        description: the country iso code
+      name:
+        type: string
+        description: the country name
+  General:
+    type: object
+    properties:
+      fax:
+        type: string
+        description: general fax number
+      email:
+        type: string
+        description: general email address
+      website:
+        type: string
+        description: general website
+      facebook:
+        type: string
+        description: general facebook URL
+      mobile:
+        type: string
+        description: general mobile phone number
+      googlePlus:
+        type: string
+        description: general googlePlus account name
+      twitter:
+        type: string
+        description: general twitter account name
+      phone:
+        type: string
+        description: general phone number
+  RegionRepresentation:
+    type: object
+    properties:
+      region:
+        type: string
+        description: region
+      subRegion:
+        type: string
+        description: subregion
+  GeoCoordinates:
+    type: object
+    required:
+      - latitude
+      - longitude
+    properties:
+      latitude:
+        type: number
+        format: double
+        description: latitude - in decimal degrees
+      longitude:
+        type: number
+        format: double
+        description: longitude - in decimal degrees

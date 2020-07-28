@@ -7,7 +7,7 @@ export class OperationsGroupRender extends AbstractRenderer<IOperationsGroup & I
     constructor(){
         super({templatePath: settings.operations.templateFile});
     }
-    public getTypeAliases(): Array<{alias: string, typeDefinition: string}>{
+    public getTypeAliases(): {alias: string, typeDefinition: string}[]{
        return Object.keys(settings.type.typeAliases).map((alias) => {
             return {
                 alias,

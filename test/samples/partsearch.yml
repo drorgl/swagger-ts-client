@@ -1,0 +1,1190 @@
+---
+swagger: "2.0"
+info:
+  version: 2.3.4
+  title: PartSearch
+  description: Search for parts in the fake-Key catalog by keyword using KeywordSearch.
+    Then make a PartDetails call to retrieve all real time information about the part
+    including pricing. PartDetails works best with fake-Key part numbers as some manufacturers
+    overlap other manufacturer part numbers.
+  termsOfService: https://www.fakekey.com/en/terms-and-conditions
+  contact:
+    url: https://api-portal.fakekey.com/help
+  x-ibm-name: partsearch
+schemes:
+- https
+paths:
+  /keywordsearch:
+    post:
+      tags: []
+      summary: KeywordSearch allows a client to search for any part in fake-Key's
+        system. An input object is used
+      description: " KeywordSearch allows a client to search for any part in fake-Key's
+        system. An input object is used <br />\r\nto pass the minimum 2 required values
+        (Keyword, RecordCount) to the method. Additional values can be added <br />\r\nin
+        order to narrow down the search such as Search Options and other Filter Options.
+        <br />\r\nAn output object is returned that contains the results of that search
+        in a neat and easily accessible manner.\r\n<br />\r\n   This resource expect
+        the following locale settings on the HTTP header: <br />\r\n   X-fakeKEY-Locale-Site
+        <br />\r\n   X-fakeKEY-Locale-Language <br />\r\n   X-fakeKEY-Locale-Currency
+        <br />\r\n   X-fakeKEY-Locale-ShipToCountry <br />\r\n   If no locale information
+        is passed on the header, the defaults to be used are: <br />\r\n   X-fakeKEY-Locale-Site=
+        US <br />\r\n   X-fakeKEY-Locale-Language= en<br />\r\n   X-fakeKEY-Locale-Currency=
+        USD <br />\r\n   X-fakeKEY-Locale-ShipToCountry= (blank) <br /><br />\r\n "
+      operationId: PartSearch_KeywordSearch
+      parameters:
+      - name: request
+        in: body
+        description: KeywordSearchRequest
+        required: true
+        schema:
+          $ref: '#/definitions/KeywordSearchPostRequest'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Site'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Language'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Currency'
+      - $ref: '#/parameters/X-fakeKEY-Locale-ShipToCountry'
+      - $ref: '#/parameters/X-fakeKEY-Customer-Id'
+      - $ref: '#/parameters/X-fakeKEY-Partner-Id'
+      - $ref: '#/parameters/Authorization'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/KeywordSearchPostResponse'
+        400:
+          description: BadRequest
+  /partdetails:
+    post:
+      tags: []
+      summary: Retrieve up to date part information with pricing
+      description: "This resource expects the following locale settings on the HTTP
+        header: <br />\r\nX-fakeKEY-Locale-Site <br />\r\nX-fakeKEY-Locale-Language
+        <br />\r\nX-fakeKEY-Locale-Currency <br />\r\nX-fakeKEY-Locale-ShipToCountry
+        <br />\r\nIf no locale information is passed on the header, the defaults to
+        be used are: <br />\r\nX-fakeKEY-Locale-Site= US <br />\r\nX-fakeKEY-Locale-Language=
+        en<br />\r\nX-fakeKEY-Locale-Currency= USD <br />\r\nX-fakeKEY-Locale-ShipToCountry=
+        (blank) <br /><br />\r\n"
+      operationId: PartSearch_PartDetails
+      parameters:
+      - name: request
+        in: body
+        description: CallGetPartDetailsRequest
+        required: true
+        schema:
+          $ref: '#/definitions/PartDetailsPostRequest'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Site'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Language'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Currency'
+      - $ref: '#/parameters/X-fakeKEY-Locale-ShipToCountry'
+      - $ref: '#/parameters/X-fakeKEY-Customer-Id'
+      - $ref: '#/parameters/X-fakeKEY-Partner-Id'
+      - $ref: '#/parameters/Authorization'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/PartDetailsResponse'
+        400:
+          description: BadRequest
+  /fakereelpricing:
+    post:
+      parameters:
+      - name: request
+        in: body
+        description: fakeReelPricingRequest
+        required: true
+        schema:
+          $ref: '#/definitions/fakeReelPricingPostRequest'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Site'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Language'
+      - $ref: '#/parameters/X-fakeKEY-Locale-Currency'
+      - $ref: '#/parameters/X-fakeKEY-Locale-ShipToCountry'
+      - $ref: '#/parameters/X-fakeKEY-Customer-Id'
+      - $ref: '#/parameters/X-fakeKEY-Partner-Id'
+      - $ref: '#/parameters/Authorization'
+      responses:
+        200:
+          description: 200 OK
+          schema:
+            $ref: '#/definitions/fakeReelPricingPostResponse'
+        400:
+          description: 400 Bad Request
+          schema:
+            $ref: '#/definitions/fakeReelPricingPostResponse'
+        503:
+          description: 503 Service Unavailable
+      summary: Get the fakeReel pricing information for the given Part Number and
+        Quantity
+      description: Get the fakeReel pricing information for the given Part Number
+        and Quantity
+      operationId: PartSearch_fakeReelPricing
+definitions:
+  KeywordSearchPostRequest:
+    description: Request model for KeywordSearch
+    required:
+    - Keywords
+    - RecordCount
+    type: object
+    properties:
+      SearchOptions:
+        description: Filters the search results by the included SearchOptions.
+        type: array
+        items:
+          enum:
+          - LeadFree
+          - ChipOutpostOnly
+          - CollapsePackingTypes
+          - ExcludeChipOutpost
+          - ExcludeNonStock
+          - Has3DModel
+          - InStock
+          - ManufacturerPartSearch
+          - NewProductsOnly
+          - PbFreeOnly
+          - RoHSCompliant
+          type: string
+      Keywords:
+        description: Keywords to search on.
+        type: string
+        example: p5555-nd
+      RecordCount:
+        format: int32
+        description: Number of parts to return,  1-50
+        maximum: 50
+        minimum: 1
+        type: integer
+        example: "10"
+      RecordStartPosition:
+        format: int32
+        description: Starting index of the records returned.
+        type: integer
+        example: "0"
+      Filters:
+        $ref: '#/definitions/Filter'
+        description: Set Filters to narrow down search response.
+      Sort:
+        $ref: '#/definitions/SortParameters'
+        description: Sort Parameters
+      RequestedQuantity:
+        format: int32
+        description: The RequestedQuantity is used with the SortByUnitPrice Sort Option
+          to sort by unit price at the RequestedQuantity.
+        type: integer
+        example: "50"
+  Filter:
+    description: Set Filters to narrow down the search results.
+    type: object
+    properties:
+      CategoryIds:
+        description: A collection of Category IDs to filter on. Deprecated.
+        type: array
+        items:
+          format: int32
+          type: integer
+      FamilyIds:
+        description: A collection of Family IDs to filter on. Deprecated.
+        type: array
+        items:
+          format: int32
+          type: integer
+      ManufacturerIds:
+        description: A collection of Manufacturer IDs to filter on.
+        type: array
+        items:
+          format: int32
+          type: integer
+      ParametricFilters:
+        description: A collection of ParametricFilters. Filter by any PidVid.
+        type: array
+        items:
+          $ref: '#/definitions/ParametricFilter'
+  SortParameters:
+    description: SortParameters - All properties are required if used.
+    required:
+    - Option
+    - Direction
+    - SortParameterId
+    type: object
+    properties:
+      Option:
+        description: Specifies the field to sort on. Options include SortByfakeKeyPartNumber,
+          SortByManufacturerPartNumber, SortByDescription, SortByCategory, SortByFamily,
+          SortByManufacturer, SortByMinimumOrderQuantity, SortByQuantityAvailable,
+          SortByUnitPrice, SortByParameter.
+        enum:
+        - SortByfakeKeyPartNumber
+        - SortByManufacturerPartNumber
+        - SortByDescription
+        - SortByCategory
+        - SortByFamily
+        - SortByManufacturer
+        - SortByMinimumOrderQuantity
+        - SortByQuantityAvailable
+        - SortByUnitPrice
+        - SortByParameter
+        type: string
+        example: SortByUnitPrice
+      Direction:
+        description: The sort direction - Ascending or Decending
+        enum:
+        - Ascending
+        - Descending
+        type: string
+        example: Ascending
+      SortParameterId:
+        format: int32
+        description: The ParameterId of the parameter to sort on. Only used if Option
+          is SortByParameter, but is required. If using other Options, input 0.
+        type: integer
+        example: "50"
+  ParametricFilter:
+    description: Parametric Filter object. You can narrow down your searches using
+      PidVids. Unfortunately a full list is unavailable.
+    type: object
+    properties:
+      ParameterId:
+        format: int32
+        description: Internal Id representing a parameter.
+        type: integer
+        example: "725"
+      ValueId:
+        description: Internal Id representing a value.
+        type: string
+        example: "7"
+  KeywordSearchPostResponse:
+    description: Http Response for KeywordSearch
+    type: object
+    properties:
+      Parts:
+        description: List of parts returned by KeywordSearch
+        type: array
+        items:
+          $ref: '#/definitions/Part'
+      Taxonomy:
+        $ref: '#/definitions/LimitedTaxonomy'
+        description: Limited taxonomy structure for this part.
+      LimitedCategories:
+        description: Legacy taxonomy structure. Will contain the name of the category
+          and id.
+        type: array
+        items:
+          $ref: '#/definitions/LimitedCategory'
+      FilterValues:
+        description: ""
+        type: array
+        items:
+          $ref: '#/definitions/PidVid'
+      LimitedFilterValues:
+        description: PidVids relating to this part. These can be used for parametric
+          searching.
+        type: array
+        items:
+          $ref: '#/definitions/LimitedParameter'
+      Results:
+        format: int32
+        description: Total number of parts returned
+        type: integer
+        example: "20"
+      ExactMatches:
+        type: integer
+        description: Number of exact manufacturer number matches.
+        example: "1"
+        format: int32
+      ExactParts:
+        type: array
+        description: List of parts that are exact manufacturer number matches.
+        items:
+          $ref: '#/definitions/Part'
+      ExactfakeKeyPart:
+        description: Part that matches fake-Key part number search exactly.
+        $ref: '#/definitions/Part'
+  Part:
+    description: PartSearch part Data Transfer Object
+    type: object
+    properties:
+      StandardPricing:
+        description: Standard pricing. This is cached catalog pricing for a given
+          fake-Key site. Data is cached for 24 hours.
+        type: array
+        items:
+          $ref: '#/definitions/PriceBreak'
+      MyPricing:
+        description: Your pricing only when making PartDetail call. Keyword Search
+          is cached values only.
+        type: array
+        items:
+          $ref: '#/definitions/PriceBreak'
+      Category:
+        $ref: '#/definitions/IdTextPair'
+        description: Legacy taxonomy structure. Will contain the name of the category
+          and id.
+      ChipOutpostPart:
+        description: Whether this part is only available as ChipOutpost. Part may
+          have old datecode.
+        type: boolean
+        example: "false"
+      RohsInfo:
+        description: Rohs information.
+        type: string
+        example: RoHS Compliant
+      LeadStatus:
+        description: Lead status.
+        type: string
+        example: Lead Free
+      Family:
+        $ref: '#/definitions/IdTextPair'
+        description: Legacy taxonomy structure. Will contain the name of the family
+          and id.
+      Parameters:
+        description: Parameters for the part. Can be used for parametric searching
+          in the Keyword Search API.
+        type: array
+        items:
+          $ref: '#/definitions/PidVid'
+      PartUrl:
+        description: Partial URL of the fake-Key catalog page to purchase the part.
+          This is based on your provided header Locale values.
+        type: string
+        example: /product-detail/en/panasonic-electronic-components/ECA-1VHG102/P5555-ND/245154
+      BuyUrl:
+        description: Full URL of the fake-Key catalog page to purchase the part. This
+          is based on your provided header Locale values.
+        type: string
+        example: https://www.fakekey.com/product-detail/en/panasonic-electronic-components/ECA-1VHG102/P5555-ND/245154
+      PrimaryDatasheet:
+        description: URL to the datasheet if available.
+        type: string
+        example: https://industrial.panasonic.com/cdbs/www-data/pdf/RDF0000/ABA0000C1215.pdf
+      PrimaryPhoto:
+        description: URL to catalog photo.
+        type: string
+        example: http://media.fakekey.com/Photos/Panasonic%20Photos/NHG12-SERIES.jpg
+      PrimaryVideo:
+        description: URL to video if available.
+        type: string
+      RohsSubs:
+        description: Substitutions for Rohs. This is a legacy feature and may not
+          return values in the future.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      Series:
+        $ref: '#/definitions/PidVid'
+        description: Series of part
+      SuggestedSubs:
+        description: Suggested substitutions. This is a legacy feature and may not
+          return values in the future.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      ManufacturerLeadWeeks:
+        description: The standard time to receive stock from manufacturer.
+        type: string
+        example: 15 weeks
+      ManufacturerPageUrl:
+        description: Partial URL to the fake-Key supplier page.
+        type: string
+        example: /en/supplier-centers/p/panasonic
+      PartStatus:
+        description: The status of this part.
+        type: string
+        example: Active
+      AlternatePackaging:
+        description: Other packaging types available for this part.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      DetailedDescription:
+        description: Extended catalog description of part.
+        type: string
+        example: 1000µF 35V Aluminum Electrolytic Capacitors Radial, Can 2000 Hrs
+          @ 105°C
+      TariffDescription:
+        description: Tariff status of the part. Only applies if purchasing in USD.
+          Valid options are No Tarrif, Tariff Eligible, and Tariff Applied
+        type: string
+        example: Tariff Eligible
+      ManufacturerPartNumber:
+        description: The manufacturer part number.
+        type: string
+        example: ECA-1VHG102
+      MinimumOrderQuantity:
+        format: int32
+        description: The minimum quantity to order from fake-Key.
+        type: integer
+        example: "1"
+      NonStock:
+        description: Boolean if this part is non stock or not.
+        type: boolean
+        example: "false"
+      Packaging:
+        $ref: '#/definitions/PidVid'
+        description: Structure containing packaging Ids.
+      PartId:
+        format: int32
+        description: Internal fake-Key Id for part. This is used in some URLs for
+          pages pertaining to the part.
+        type: integer
+        example: "245154"
+      QuantityOnHand:
+        format: int32
+        description: Quantity of the part available for immediate sale.
+        type: integer
+        example: "861"
+      fakeKeyPartNumber:
+        description: fake-Key part number
+        type: string
+        example: P5555-ND
+      ProductDescription:
+        description: Catalog description of part.
+        type: string
+        example: CAP ALUM 1000UF 20% 35V RADIAL
+      UnitPrice:
+        format: double
+        description: The price for a single unit of this part.
+        type: number
+        example: 0.820000
+      ManufacturerName:
+        $ref: '#/definitions/IdTextPair'
+        description: Pair containing manufacture name and fake-Key's identifier.
+      ManfacturerPublicQuantity:
+        format: int32
+        description: Number of this component available to order from manufacturer.
+        type: integer
+        example: "0"
+  LimitedTaxonomy:
+    description: object for LimitedTaxonomy
+    type: object
+    properties:
+      Children:
+        description: Taxonomy nodes contained within.
+        type: array
+        items:
+          $ref: '#/definitions/LimitedTaxonomy'
+      PartCount:
+        format: int32
+        description: Number of parts in limited taxonomy.
+        type: integer
+        example: "1"
+      NewPartCount:
+        format: int32
+        description: Number of new parts in limited taxonomy.
+        type: integer
+        example: "0"
+      ParameterId:
+        format: int32
+        description: Internal Id of Parameter. Can be used in Keyword search for filtering.
+        type: integer
+        example: "-8"
+      ValueId:
+        description: Internal Id of Value. Can be used in Keyword search for filtering.
+        type: string
+        example: "58"
+      Parameter:
+        description: Will always be Categories.
+        type: string
+        example: Categories
+      Value:
+        description: Name of taxonomy.
+        type: string
+        example: Aluminum Electrolytic Capacitors
+  LimitedCategory:
+    description: Limited Category object. Legacy taxonomy structure.
+    type: object
+    properties:
+      Id:
+        description: Internal Id of Category.
+        type: string
+        example: "2"
+      Category:
+        description: String representation of category.
+        type: string
+        example: Capacitors
+      Families:
+        description: Families contained in category.
+        type: array
+        items:
+          $ref: '#/definitions/Family'
+  PidVid:
+    description: Structure containing a parameter and value string pair and internal
+      Ids for them.
+    type: object
+    properties:
+      ParameterId:
+        format: int32
+        description: Internal Id for the parameter. Can be used to filter in Keyword
+          Search API.
+        type: integer
+        example: "1500"
+      ValueId:
+        description: Internal Id for the value. Can be used to filter in Keyword Search
+          API.
+        type: string
+        example: "273"
+      Parameter:
+        description: The parameter name.
+        type: string
+        example: Height - Seated (Max)
+      Value:
+        description: The value.
+        type: string
+        example: 0.866\" (22.00mm)
+  LimitedParameter:
+    description: Limited Parameter
+    type: object
+    properties:
+      Values:
+        description: Array of values
+        type: array
+        items:
+          $ref: '#/definitions/Value'
+      Pid:
+        format: int32
+        description: Internal Id for the parameter. Can be used to filter in Keyword
+          Search API.
+        type: integer
+        example: "-1"
+      Parameter:
+        description: The parameter name
+        type: string
+        example: Manufacturer
+  PriceBreak:
+    description: PriceBreak object
+    type: object
+    properties:
+      BreakQuantity:
+        format: int32
+        description: The quantity at which this price begins.
+        type: integer
+        example: "10"
+      UnitPrice:
+        format: double
+        description: The price for a single unit at this break.
+        type: number
+        example: 0.623000
+      TotalPrice:
+        format: double
+        description: The price for the break quantity.
+        type: number
+        example: 6.230000
+  IdTextPair:
+    description: IdTextPair object
+    type: object
+    properties:
+      Id:
+        description: ""
+        type: string
+      Text:
+        description: ""
+        type: string
+  AssociatedProduct:
+    description: Associated Product object
+    type: object
+    properties:
+      Description:
+        description: A lightweight part model for a related product.
+        type: string
+      PartUrl:
+        description: Full URL of the fake-Key catalog page to purchase the part. This
+          is based on your provided header Locale values.
+        type: string
+        example: https://www.fakekey.com/product-detail/en/panasonic-electronic-components/ECA-1VHG102/P5555-ND/245154
+      ManufacturerPartNumber:
+        description: The manufacturer part number.
+        type: string
+        example: ECA-1VHG102
+      MinimumOrderQuantity:
+        format: int32
+        description: The minimum quantity to order from fake-Key.
+        type: integer
+        example: "1"
+      NonStock:
+        description: Boolean if this part is non stock or not.
+        type: boolean
+        example: "false"
+      Packaging:
+        $ref: '#/definitions/PidVid'
+        description: Structure containing packaging Ids.
+      PartId:
+        format: int32
+        description: Internal fake-Key Id for part. This is used in some URLs for
+          pages pertaining to the part.
+        type: integer
+        example: "245154"
+      QuantityOnHand:
+        format: int32
+        description: Quantity of the part available for immediate sale.
+        type: integer
+        example: "861"
+      fakeKeyPartNumber:
+        description: fake-Key part number.
+        type: string
+        example: P5555-ND
+      ProductDescription:
+        description: Catalog description of part.
+        type: string
+        example: CAP ALUM 1000UF 20% 35V RADIAL
+      UnitPrice:
+        format: double
+        description: The price for a single unit of this part.
+        type: number
+        example: 0.820000
+      ManufacturerName:
+        $ref: '#/definitions/IdTextPair'
+        description: Pair containing manufacture name and fake-Key's identifier.
+      ManfacturerPublicQuantity:
+        format: int32
+        description: Number of this component available to order from manufacturer.
+        type: integer
+        example: "0"
+  Family:
+    description: Legacy taxonomy structure.
+    type: object
+    properties:
+      Id:
+        description: Internal Id of Family.
+        type: string
+        example: "11"
+      Name:
+        description: String representation of family.
+        type: string
+        example: Ceramic Capacitors
+      PartCount:
+        format: int32
+        description: ""
+        type: integer
+        example: "1"
+  Value:
+    description: Value id and string combo.
+    type: object
+    properties:
+      Vid:
+        description: Internal Id for the value. Can be used to filter in Keyword Search
+          API.
+        type: string
+        example: "273"
+      Value:
+        description: The value
+        type: string
+        example: 0.866\" (22.00mm)
+  MediaLinks:
+    description: Media links object
+    type: object
+    properties:
+      MediaType:
+        description: Type of media. Can be Datasheets, Product Photos, Catalog Drawings,
+          etc.
+        type: string
+        example: Product Photos
+      Title:
+        description: Title of media.
+        type: string
+        example: NHG12-SERIES
+      SmallPhoto:
+        description: Small photo URL if available.
+        type: string
+        example: http://media.fakekey.com/Photos/Panasonic%20Photos/NHG12-SERIES_sml.jpg
+      Thumbnail:
+        description: Thumbnail URL if available.
+        type: string
+        example: http://media.fakekey.com/Photos/Panasonic%20Photos/NHG12-SERIES_tmb.jpg
+      Url:
+        description: URL to the media.
+        type: string
+        example: http://media.fakekey.com/Photos/Panasonic%20Photos/NHG12-SERIES.jpg
+  KitPart:
+    description: Kit Part object
+    type: object
+    properties:
+      AssociatedProduct:
+        $ref: '#/definitions/AssociatedProduct'
+        description: ""
+      Quantity:
+        format: int32
+        description: Number of the AssociatedProduct in the Kit.
+        type: integer
+        example: "5"
+  SearchLocale:
+    type: object
+    properties:
+      siteField:
+        enum:
+        - US
+        - CA
+        - JP
+        - UK
+        - DE
+        - AT
+        - BE
+        - DK
+        - FI
+        - GR
+        - IE
+        - IT
+        - LU
+        - NL
+        - "NO"
+        - PT
+        - ES
+        - KR
+        - HK
+        - SG
+        - CN
+        - TW
+        - AU
+        - FR
+        - IN
+        - NZ
+        - SE
+        - MX
+        - CH
+        - IL
+        - PL
+        - SK
+        - SI
+        - LV
+        - LT
+        - EE
+        - CZ
+        - HU
+        - BG
+        - MY
+        - ZA
+        - RO
+        type: string
+        description: Deprecated.
+      languageField:
+        enum:
+        - en
+        - ja
+        - de
+        - fr
+        - ko
+        - zhs
+        - zht
+        - it
+        - es
+        - he
+        type: string
+        description: Deprecated.
+      currencyField:
+        enum:
+        - USD
+        - CAD
+        - JPY
+        - GBP
+        - EUR
+        - HKD
+        - SGD
+        - TWD
+        - KRW
+        - AUD
+        - NZD
+        - INR
+        - DKK
+        - NOK
+        - SEK
+        - ILS
+        - CNY
+        - PLN
+        - CHF
+        - CZK
+        - HUF
+        - RON
+        - ZAR
+        - MYR
+        type: string
+        description: Deprecated.
+      pricingCountryLovField:
+        type: string
+        description: Deprecated.
+  PartDetailsPostRequest:
+    description: Part Details Post Request
+    required:
+    - Part
+    type: object
+    properties:
+      Part:
+        type: string
+        example: P5555-ND
+        description: Part number. Works best with fake-Key part numbers. Manufacturer
+          numbers will work, as long as they are unique.
+      IncludeAllAssociatedProducts:
+        type: boolean
+        description: The option to include all Associated products. If not passed
+          in, only the top 4 results will be shown.
+        example: "false"
+      IncludeAllForUseWithProducts:
+        type: boolean
+        description: The option to include all For Use With products. If not passed
+          in, only the top 4 results will be shown.
+        example: "false"
+    additionalProperties: false
+  PartDetailsResponse:
+    description: Part Details Response
+    type: object
+    properties:
+      Part:
+        $ref: '#/definitions/PartDetails'
+        description: Part response
+  PartDetails:
+    description: Part Details object
+    type: object
+    properties:
+      MyPricing:
+        description: Your pricing only when making PartDetail call. Keyword Search
+          is cached values only.
+        type: array
+        items:
+          $ref: '#/definitions/PriceBreak'
+      Obsolete:
+        description: A value indicating whether this Part obsolete.
+        type: boolean
+        example: "false"
+      MediaLinks:
+        description: Collection of MediaLinks objects. These can contain links to
+          datasheets or photots or manuals.
+        type: array
+        items:
+          $ref: '#/definitions/MediaLinks'
+      StandardPackage:
+        format: int32
+        description: The break quantity of a manufacturer standard package.
+        type: integer
+        example: "200"
+      LimitedTaxonomy:
+        $ref: '#/definitions/LimitedTaxonomy'
+        description: Limited taxonomy structure for this part.
+      Kits:
+        description: ""
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      KitContents:
+        description: ""
+        type: array
+        items:
+          $ref: '#/definitions/KitPart'
+      MatingProducts:
+        description: An association of same vendor products that mate with each other.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      AssociatedProducts:
+        description: Part numbers that are directly correlated to complete the intended
+          function of the part. These products may be either same manufacturer or
+          differ.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      ForUseWithProducts:
+        description: Part numbers that are directly correlated to complete the intended
+          function of the part. These products may be either same manufacturer or
+          differ.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      AdditionalValueFee:
+        description: The fake-Reel fee
+        type: number
+        example: 7
+        format: double
+      ResultCode:
+        description: Deprecated.
+        enum:
+        - ResultCodeSuccess
+        - ResultCodeFail
+        - ResultCodeRestrictedByCustomerClass
+        - ResultCodeRestrictedByCustomerRoot
+        - ResultCodeRestrictedByCurrency
+        - ResultCodeRestrictedByVendor
+        - ResultCodeRestrictedByDK
+        - ResultCodeRestrictedByCertificate
+        - ResultCodeRestrictedByCountry
+        type: string
+        example: "0"
+      SearchLocale:
+        $ref: '#/definitions/SearchLocale'
+        description: Search locale model. Deprecated.
+      StandardPricing:
+        description: Standard pricing for specified locale.
+        type: array
+        items:
+          $ref: '#/definitions/PriceBreak'
+      Category:
+        $ref: '#/definitions/IdTextPair'
+        description: Legacy taxonomy structure. Will contain the name of the category
+          and id.
+      ChipOutpostPart:
+        description: Whether this part is only available as ChipOutpost. Part may
+          have old datecode.
+        type: boolean
+        example: "false"
+      RohsInfo:
+        description: Rohs information.
+        type: string
+        example: RoHS Compliant
+      LeadStatus:
+        description: Lead status.
+        type: string
+        example: Lead Free
+      Family:
+        $ref: '#/definitions/IdTextPair'
+        description: Legacy taxonomy structure. Will contain the name of the family
+          and id.
+      Parameters:
+        description: Parameters for the part. Can be used for parametric searching
+          in the Keyword Search API.
+        type: array
+        items:
+          $ref: '#/definitions/PidVid'
+      PartUrl:
+        description: Partial URL of the fake-Key catalog page to purchase the part.
+          This is based on your provided header Locale values.
+        type: string
+        example: /product-detail/en/panasonic-electronic-components/ECA-1VHG102/P5555-ND/245154
+      BuyUrl:
+        description: Full URL of the fake-Key catalog page to purchase the part. This
+          is based on your provided header Locale values.
+        type: string
+        example: https://www.fakekey.com/product-detail/en/panasonic-electronic-components/ECA-1VHG102/P5555-ND/245154
+      PrimaryDatasheet:
+        description: URL to the datasheet if available.
+        type: string
+        example: https://industrial.panasonic.com/cdbs/www-data/pdf/RDF0000/ABA0000C1215.pdf
+      PrimaryPhoto:
+        description: URL to catalog photo.
+        type: string
+        example: http://media.fakekey.com/Photos/Panasonic%20Photos/NHG12-SERIES.jpg
+      PrimaryVideo:
+        description: URL to video if available.
+        type: string
+      RohsSubs:
+        description: Substitutions for Rohs. This is a legacy feature and may not
+          return values in the future.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      Series:
+        $ref: '#/definitions/PidVid'
+        description: Series of part.
+      SuggestedSubs:
+        description: Suggested substitutions. This is a legacy feature and may not
+          return values in the future.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      ManufacturerLeadWeeks:
+        description: The standard time to receive stock from manufacturer.
+        type: string
+        example: 15 weeks
+      ManufacturerPageUrl:
+        description: Partial URL to the fake-Key supplier page.
+        type: string
+        example: /en/supplier-centers/p/panasonic
+      PartStatus:
+        description: The status of this part.
+        type: string
+        example: Active
+      AlternatePackaging:
+        description: Other packaging types available for this part.
+        type: array
+        items:
+          $ref: '#/definitions/AssociatedProduct'
+      DetailedDescription:
+        description: Extended catalog description of part.
+        type: string
+        example: 1000µF 35V Aluminum Electrolytic Capacitors Radial, Can 2000 Hrs
+          @ 105°C
+      TariffDescription:
+        description: Tariff status of the part. Only applies if purchasing in USD.
+          Valid options are No Tarrif, Tariff Pending, and Tariff Applied
+        type: string
+        example: Tariff Pending
+      ManufacturerPartNumber:
+        description: The manufacturer part number.
+        type: string
+        example: ECA-1VHG102
+      MinimumOrderQuantity:
+        format: int32
+        description: The minimum quantity to order from fake-Key.
+        type: integer
+        example: "1"
+      NonStock:
+        description: Boolean if this part is non stock or not.
+        type: boolean
+        example: "false"
+      Packaging:
+        $ref: '#/definitions/PidVid'
+        description: Structure containing packaging Ids.
+      PartId:
+        format: int32
+        description: Internal fake-Key Id for part. This is used in some URLs for
+          pages pertaining to the part.
+        type: integer
+        example: "245154"
+      QuantityOnHand:
+        format: int32
+        description: Quantity of the part available for immediate sale.
+        type: integer
+        example: "861"
+      fakeKeyPartNumber:
+        description: fake-Key part number.
+        type: string
+        example: P5555-ND
+      ProductDescription:
+        description: Catalog description of part.
+        type: string
+        example: CAP ALUM 1000UF 20% 35V RADIAL
+      UnitPrice:
+        format: double
+        description: The price for a single unit of this part.
+        type: number
+        example: 0.820000
+      ManufacturerName:
+        $ref: '#/definitions/IdTextPair'
+        description: Pair containing manufacture name and fake-Key's identifier.
+      ManfacturerPublicQuantity:
+        format: int32
+        description: Number of this component available to order from manufacturer.
+        type: integer
+        example: "0"
+    additionalProperties: false
+  fakeReelPricingPostRequest:
+    description: fakeReel Pricing Request Object
+    required:
+    - PartNumber
+    - Quantity
+    type: object
+    properties:
+      PartNumber:
+        description: PartNumber to search against
+        type: string
+        example: 300-6140-6-ND
+      Quantity:
+        format: int32
+        description: Quantity requested
+        maximum: 2147483647
+        minimum: 1
+        type: integer
+        example: "500"
+  fakeReelPricingPostResponse:
+    description: Response for fakeReel Pricing Request
+    type: object
+    properties:
+      ReelingFee:
+        format: double
+        description: Fee per reel ordered
+        type: number
+        example: 7
+      UnitPrice:
+        format: double
+        description: Calculated price per unit (This includes the reeling fee.)
+        type: number
+        example: 0.432000
+      ExtendedPrice:
+        format: double
+        description: The extended price (This includes the reeling fee.)
+        type: number
+        example: 216
+      Quantity:
+        format: int32
+        description: Quantity desired
+        type: integer
+        example: "500"
+      Message:
+        description: Additional messages provided by the service
+        type: string
+        example: One or more errors occurred. (The specified part was not found.)
+      Currency:
+        description: Currency used to calculate - from headers
+        type: string
+        example: USD
+      ShipTo:
+        description: Ship to country - from headers
+        type: string
+        example: US
+      Site:
+        description: Site information - from headers
+        type: string
+        example: US
+    additionalProperties: false
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+basePath: /partsearch/v2
+consumes:
+- application/xml
+- application/json
+produces:
+- application/xml
+- application/json
+security:
+- Client ID: []
+securityDefinitions:
+  Client ID:
+    type: apiKey
+    description: User's Application IBM Client ID
+    in: header
+    name: X-IBM-Client-Id
+parameters:
+  X-fakeKEY-Locale-Site:
+    name: X-fakeKEY-Locale-Site
+    type: string
+    required: false
+    in: header
+    description: 'Two letter code for fake-Key part website to search on. Different
+      county''s sites have different part restrictions, supported languages, and currencies.
+      Acceptable values include: US, AU, AT, BE, BG, CA, CN, CZ, DK, EE, FI, FR, DE,
+      GR, HK, HU, IE, IL, IT, JP, LV, LT, LU, MX, NL, NZ, NO, PL, PT, SG, SK, KR,
+      ES, SE, CH, TW, GB, TH, PH.'
+  X-fakeKEY-Locale-Language:
+    name: X-fakeKEY-Locale-Language
+    type: string
+    required: false
+    in: header
+    description: 'Two letter code for language to search on. Langauge must be supported
+      by the selected site. If searching on keyword, this language is used to find
+      matches. Acceptable values include: en, de, fr, zh, it, ja, es, ko, sv, sl,
+      sk, pt, pl, no, nl, ru, he, hu, el.'
+  X-fakeKEY-Locale-Currency:
+    name: X-fakeKEY-Locale-Currency
+    type: string
+    required: false
+    in: header
+    description: 'Three letter code for Currency to return part pricing for. Currency
+      must be supported by the selected site. Acceptable values include: USD, AUD,
+      EUR, CAD, CNY, DKK, HKD, ILS, JPY, NZD, NOK, SGD, KRW, SEK, TWD, GBP, PHP, THB.'
+  X-fakeKEY-Locale-ShipToCountry:
+    name: X-fakeKEY-Locale-ShipToCountry
+    type: string
+    required: false
+    in: header
+    description: ISO code for country to ship to.
+  X-fakeKEY-Customer-Id:
+    name: X-fakeKEY-Customer-Id
+    type: string
+    required: false
+    in: header
+    description: Your fake-Key Customer Id
+  X-fakeKEY-Partner-Id:
+    name: X-fakeKEY-Partner-Id
+    type: string
+    required: false
+    in: header
+    description: Your fake-Key Partner Id (Legacy)
+  Authorization:
+    name: Authorization
+    type: string
+    required: true
+    in: header
+    description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+      target="_blank">OAuth 2.0 Documentation</a> page for more info.
+x-ibm-endpoints:
+- endpointUrl: https://api.fakekey.com/services
+  description: Base Gateway API Endpoint
+  type:
+  - production
+  - development
+...

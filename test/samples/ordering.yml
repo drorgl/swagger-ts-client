@@ -1,0 +1,395 @@
+---
+swagger: "2.0"
+info:
+  version: 1.3.3
+  title: Ordering
+  x-ibm-name: ordering
+  description: ""
+schemes:
+- https
+paths:
+  /TestOrder:
+    post:
+      responses:
+        200:
+          description: 200 OK
+          schema:
+            $ref: '#/definitions/Response'
+        400:
+          description: 400 Bad Request
+          schema:
+            $ref: '#/definitions/Response'
+      summary: Test endpoint for Order.
+      operationId: Ordering_TestOrder
+      description: Test endpoint for Order. Will do basic input validation but will
+        NOT submit the order for processing.
+      parameters:
+      - name: Input
+        required: true
+        in: body
+        schema:
+          $ref: '#/definitions/OrderInput'
+        description: OrderInput JSON object
+      - name: Authorization
+        type: string
+        required: true
+        in: header
+        description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+          target="_blank">OAuth 2.0 Documentation</a> page for more info.
+  /Order:
+    post:
+      tags: []
+      summary: Queues an order for processing. A confirmation email will be sent later
+        when it has been processed.
+      operationId: Ordering_Order
+      parameters:
+      - name: Input
+        in: body
+        description: OrderInput JSON object
+        required: true
+        schema:
+          $ref: '#/definitions/OrderInput'
+      - name: Authorization
+        type: string
+        required: true
+        in: header
+        description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+          target="_blank">OAuth 2.0 Documentation</a> page for more info.
+      responses:
+        200:
+          description: 200 OK
+          schema:
+            $ref: '#/definitions/Response'
+        400:
+          description: 400 Bad Request
+          schema:
+            $ref: '#/definitions/Response'
+      deprecated: false
+      description: Queues an order for processing. A confirmation email will be sent
+        later when it has been processed.
+definitions:
+  Response:
+    properties:
+      Message:
+        type: string
+        description: String either indicating success or listing fields which with
+          invalid input
+        example: Order queued for processing.
+      SalesOrderId:
+        type: integer
+        format: int32
+        description: Customer's newly created salesorder Id
+        example: "12345678"
+      PurchaseOrderNumber:
+        type: string
+        description: The purchase order number provided by customer on input.
+        example: Company-1234
+    additionalProperties: false
+    description: Response object containing a message, salesorder id, and the customer's
+      purchase order number.
+    required:
+    - Message
+  Schedule:
+    properties:
+      ScheduledDate:
+        type: string
+        description: Valid future date for shipping.
+        example: "2017-04-19"
+        format: date
+      ScheduledQuantity:
+        type: integer
+        description: Number to schedule on the selected date.
+        format: int32
+        example: 5
+      ShipmentNumber:
+        type: integer
+        description: Number of the shipment.
+        format: int32
+        example: 1
+    additionalProperties: false
+    description: Optional Schedule object to determine how many of the lineitem are
+      shipped on which dates
+    required:
+    - ScheduledQuantity
+    - ScheduledDate
+  OrderInput:
+    description: Model that contains all information required for an order.
+    required:
+    - PurchaseOrderNumber
+    - Currency
+    - DestinationCountry
+    - Contact
+    - NettermsBillingAccountNumber
+    - PartDetails
+    type: object
+    properties:
+      PurchaseOrderNumber:
+        description: Purchase order number
+        type: string
+      Currency:
+        description: Currency to use that is valid in the DestinationCountry.
+        type: string
+        example: USD
+      DestinationCountry:
+        description: 2 Character ISO code for destination
+        type: string
+        example: US
+      Contact:
+        $ref: '#/definitions/Contact'
+      NettermsBillingAccountNumber:
+        description: Your Net Terms Billing account number
+        type: string
+      ShipMethod:
+        description: 'Shipping method. Not all options are available in all times
+          and locations. The following options are accepted: "DHL worldwide Express"  "FedEx
+          ground"  "FedEx 3 day"  "FedEx 2 day"  "FedEx standard overnight"  "FedEx
+          priority overnight"  "FedEx first overnight"  "FedEx international priority"  "FedEx
+          international economy"  "UPS ground"  "UPS 3 day"  "UPS 2 day"  "UPS 2 day
+          noon"  "UPS 1 day"  "UPS 1 day 3 p.m."  "UPS 1 day early a.m."  "UPS worldwide
+          expedited"  "UPS worldwide express"  "UPS worldwide saver"  "USPS express
+          mail international"  "USPS express mail"  "USPS priority mail"  "USPS first
+          class mail"  "USPS standard mail"'
+        type: string
+        example: FedEx standard overnight
+      ShipperAccountNumber:
+        description: Optional shipping account to use
+        type: string
+      PartDetails:
+        description: List of one of more Part Details
+        type: array
+        items:
+          $ref: '#/definitions/LineItem'
+      OrderNotes:
+        description: Optional notes
+        type: array
+        items:
+          $ref: '#/definitions/Note'
+      PartTypePreference:
+        description: 'Optional field for which type of part to prefer: DKR (fake-Key
+          Reel) or CT (cut tape)'
+        type: string
+        example: DKR
+      Taxable:
+        description: Whether the order is taxable or not
+        type: boolean
+      ExportQuestions:
+        description: Required structure for Independent Distributors if product is
+          shipping outside of the US. Otherwise do not include.
+        $ref: '#/definitions/ExportQuestions'
+  Contact:
+    description: Contact schema containing contact information
+    required:
+    - Name
+    - CustomerNumber
+    - Address
+    type: object
+    properties:
+      Name:
+        description: Customer's name
+        type: string
+        example: John Doe
+      ValueAddedTaxNumber:
+        description: VATNumber (value added tax) needed in some countries
+        type: string
+      CustomerNumber:
+        description: fake-Key customer number
+        type: string
+      Address:
+        $ref: '#/definitions/Address'
+  LineItem:
+    required:
+    - Quantity
+    - UnitPrice
+    type: object
+    properties:
+      CustomerLineItemID:
+        description: Line item number for customer use
+        type: string
+      Description:
+        description: Optional description of Line Item
+        type: string
+      CustomerPartNumber:
+        description: Optional special customer part number if your company has a special
+          part number system with fake-Key
+        type: string
+      DKPartNumber:
+        description: fake-Key part number. Either this or ManufacturerPartNumber must
+          be provided.
+        type: string
+        example: P5555-ND
+      ManufacturerPartNumber:
+        description: Manufacturer part number. Either this or fake-Key part number
+          must be provided.
+        type: string
+      SupplierName:
+        description: Optional name of manufacturer/part supplier. May assist with
+          unresolved manufacturer part numbers.
+        type: string
+      Quantity:
+        format: int32
+        description: Quantity that must be greater than zero.
+        type: integer
+        example: 5
+      UnitPrice:
+        format: double
+        description: Current valid price. This is checked against the current price
+          as a confirmation that you are paying what you expect.
+        type: number
+      QuoteId:
+        format: int32
+        description: Optional QuoteId to use price from. You may use different quotes
+          for different line items.
+        type: integer
+      DeliveryDate:
+        format: date-time
+        description: Optional future date for delivery
+        type: string
+      LineItemNotes:
+        description: Optional notes
+        type: array
+        items:
+          $ref: '#/definitions/Note'
+      Schedules:
+        description: Optional array of Schedules for shipping this LineItem. If blank,
+          will use LineItem's delivery date with the full quantity.
+        type: array
+        items:
+          $ref: '#/definitions/Schedule'
+  Note:
+    description: Note schema containing a message and type of note.
+    type: object
+    properties:
+      Value:
+        description: Freeform message
+        type: string
+        example: This is a message
+  Address:
+    description: Address schema containing address information
+    required:
+    - Organization
+    - FirstName
+    - LastName
+    - Telephone
+    - Email
+    - City
+    - PostalCode
+    - Province
+    - Country
+    type: object
+    properties:
+      Organization:
+        description: Customer's/Receiver's company or organization name
+        type: string
+        example: Company Inc.
+      Department:
+        description: Optional address field - recieving department
+        type: string
+      FirstName:
+        description: Receiver's first name
+        type: string
+        example: John
+      LastName:
+        description: Receiver's last name
+        type: string
+        example: Doe
+      Telephone:
+        description: Receiver's telephone number
+        type: string
+      Email:
+        description: Receiver's email address
+        type: string
+      AddressLineOne:
+        description: First line of delivery address
+        type: string
+      AddressLineTwo:
+        description: Second line of delivery address
+        type: string
+      City:
+        description: Receiver's city
+        type: string
+        example: Thief River Falls
+      PostalCode:
+        description: Receiver's postal code (zip code)
+        type: string
+        example: "56071"
+      Province:
+        description: Receiver's province or state
+        type: string
+      Country:
+        description: Receiver's country 2 character ISO code
+        type: string
+        example: CA
+  ExportQuestions:
+    properties:
+      CountryCode:
+        type: string
+        description: The 2 faket ISO code for the country of final destination
+        example: CA
+      ConsigneeName:
+        type: string
+        description: End customer name
+        example: John Doe
+      PrimaryApplication:
+        type: string
+        description: 'The category of use for the product. Must exactly match one
+          of the following items: "Aerospace", "Automotive", "Computer & Peripherals",
+          "Consumer Electronics", "Industrial", "Medical", "Military".'
+        example: Automotive
+      SecondaryApplication:
+        type: string
+        description: 'The use for the product, valid options are determined by PrimaryApplication.
+          It must match one of the following items exactly. If Primary is "Aerospace",
+          valid options are: "Aircraft, commercial transport", "Aircraft, UAV", "Communications
+          equipment", "Computer systems", "Entertainment systems", "Sensors, controls,
+          test equipment", "Safety systems", "Satellites, commercial", "Other". If
+          Primary is "Automotive", valid options are: "Drive train", "Instrumentation",
+          "Safety systems", "Other". If Primary is "Computer &Peripherals", valid
+          options are: "Accessories", "Desktop", "Laptop", "Server/storage", "Other".
+          If Primary is "Consumer Electronics", valid options are: "Audio/video",
+          "Gaming systems", "Home appliances", "Lighting systems", "Wired communications",
+          "Wireless communications", "Other". If Primary is "Industrial", valid options
+          are: "Appliances/white goods", "Automation and control", "Renewable/fossil
+          fuels energy", "Nuclear energy", "Lighting systems", "Sensors, controls,
+          test equipment", "Tools", "Other". If Primary is "Medical", valid options
+          are: "Diagnostic equipment", "Instruments, devices", "Imaging / scanning",
+          "Other". If Primary is "Military", valid options are: "Aircraft, military",
+          "Aircraft, UAV", "Communications equipment", "Computer systems", "Missile
+          systems", "Satellites, military", "Sensors, controls, test equipment", "Vehicles,
+          personnel transport", "Vehicles, weapon transport", "Weapons systems", "Other".'
+        example: Instrumentation
+      AdditionalInfo:
+        type: string
+        description: Free form text to provide any additional application information
+        example: Freeform notes here
+    additionalProperties: false
+    description: Required structure for Independent Distributors if product is shipping
+      outside of the US. Otherwise do not include.
+    required:
+    - CountryCode
+    - SecondaryApplication
+    - PrimaryApplication
+    - ConsigneeName
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+basePath: /ordering/v1
+consumes:
+- application/json
+produces:
+- application/json
+securityDefinitions:
+  Client ID:
+    type: apiKey
+    description: User's Application IBM Client ID
+    in: header
+    name: X-IBM-Client-Id
+security:
+- Client ID: []
+x-ibm-endpoints:
+- endpointUrl: https://api.fakekey.com/services
+  description: Base Gateway API Endpoint
+  type:
+  - production
+  - development
+...

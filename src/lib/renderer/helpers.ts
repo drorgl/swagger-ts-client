@@ -5,10 +5,10 @@ import {
   lambdaParser,
 } from "../parsers/parsers";
 
-type PredicateFunc < T > = (value: any, index: number, array: any[]) => T;
-const compiledCache: Map < string, PredicateFunc < any >> = new Map();
+type PredicateFunc<T> = (value: any, index: number, array: any[]) => T;
+const compiledCache: Map<string, PredicateFunc<any>> = new Map();
 
-function compileFilterFn < T >(predicate: string): PredicateFunc < T > {
+function compileFilterFn<T>(predicate: string): PredicateFunc<T> {
   if (predicate) {
     if (compiledCache.has(predicate)) {
       return compiledCache.get(predicate);
@@ -16,7 +16,7 @@ function compileFilterFn < T >(predicate: string): PredicateFunc < T > {
       const parseResult = lambdaParser.parse(predicate);
       if (parseResult && parseResult.arguments && parseResult.body) {
         const args = [...parseResult.arguments, `return (${parseResult.body})`];
-        return new Function(...args) as PredicateFunc < T > ;
+        return new Function(...args) as PredicateFunc<T>;
       }
     }
     return null;
@@ -38,7 +38,7 @@ export function filterListHelper(...args): string {
     }
     /* tslint:enable:triple-equals */
     if (filter) {
-      const filterFn = compileFilterFn < boolean > (filter);
+      const filterFn = compileFilterFn<boolean>(filter);
       if (filterFn) {
         let ret = "";
         for (let i = 0; i < take; i++) {
@@ -68,11 +68,11 @@ export function someHelper(...args): string {
 
   if (context && context instanceof Array && filter) {
     if (filter) {
-      const filterFn = compileFilterFn < boolean > (filter);
+      const filterFn = compileFilterFn<boolean>(filter);
       if (filterFn) {
-        if (context.some(filterFn)){
-          return  options.fn(context);
-        }else{
+        if (context.some(filterFn)) {
+          return options.fn(context);
+        } else {
           return "";
         }
 
@@ -98,7 +98,7 @@ export function joinListHelper(...args): string {
     let filteredArray = context;
 
     if (filter) {
-      const filterFn = compileFilterFn < boolean > (filter);
+      const filterFn = compileFilterFn<boolean>(filter);
       if (filterFn) {
         filteredArray = context.filter(filterFn);
       } else {
@@ -111,10 +111,13 @@ export function joinListHelper(...args): string {
   }
 }
 
-export function changeCaseHelper(context: any, toCase: string, options?: any): string{
-  if (context && typeof(context) === "string" && toCase && changeCase[toCase] && changeCase[toCase] instanceof Function){
+export function changeCaseHelper(context: any, toCase: "camelCase" | "capitalCase" | "constantCase" | "dotCase" | "headerCase" | "noCase" | "paramCase" | "pascalCase" | "pathCase" | "sentenceCase" | "snakeCase", options?: any): string {
+  if (!toCase || !changeCase[toCase] || !(changeCase[toCase] instanceof Function)) {
+    throw new Error(`invalid case ${toCase}`);
+  }
+  if (context && typeof (context) === "string") {
     return changeCase[toCase](context);
-  }else{
+  } else {
     return "";
   }
 }

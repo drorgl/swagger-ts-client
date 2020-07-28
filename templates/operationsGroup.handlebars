@@ -1,4 +1,5 @@
 import * as superAgentRequest from "superagent";
+import { Stream, PassThrough } from "stream";
 {{#if imports.types}}
 import { {{#joinList imports.types}}{{this}}{{/joinList}} } from "{{imports.path}}";
 {{/if}}
@@ -71,6 +72,9 @@ export class {{operationGroup.operationsGroupName}} {
             {{/some}}
         {{/if}}
         return new Promise<{{responsesType}}>((resolve, reject) => {
+            {{#if (eq responsesType "Stream")}}
+            let returnStream = new PassThrough();
+            {{/if}}
             superAgentRequest
             .{{httpVerb}}(this.baseUrl + `{{operationUrl}}`)
             {{#some operationParams "op=>(!op.inBody && !op.inPath && !op.inHeader)"}}
@@ -83,6 +87,10 @@ export class {{operationGroup.operationsGroupName}} {
             {{#filterList operationParams "op=>op.inBody" "1"}}
             .send({{paramDisplayName}})
             {{/filterList}}
+            {{#if (eq responsesType "Stream")}}
+            .pipe(returnStream);
+            resolve(returnStream);
+            {{else}}
             .end(function(error, res){
                 if(error){
                     reject(error);
@@ -90,6 +98,7 @@ export class {{operationGroup.operationsGroupName}} {
                    resolve(res.body as {{responsesType}});
                 }
             });
+            {{/if}}
         });
     }
     {{/each}}

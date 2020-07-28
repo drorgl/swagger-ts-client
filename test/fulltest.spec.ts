@@ -6,15 +6,16 @@ import { isExportDeclaration } from "typescript";
 import { getArgs } from "../src/cli";
 import { logger, TsFromSwagger } from "../src/lib";
 const samplesRoot = "test/samples/";
+import * as dircompare from "dir-compare";
 
 describe("sample generation", () => {
     let files = fs.readdirSync(samplesRoot);
     files = files.filter((v) => fs.statSync(path.join(samplesRoot, v)).isDirectory() == false);
     for (let file of files) {
-        // if (file != "petstore.v2.yaml"){
+        // if (file != "swagger_external_vehicle_images_basic.yaml"){
         //     continue;
         // }
-        it(`should generate ${file}`, (done) => {
+        it(`should generate ${file}`, async () => {
 
             let fullFile = path.join(samplesRoot, file);
 
@@ -32,11 +33,17 @@ describe("sample generation", () => {
                 configFile: null,
             };
 
-            expect(async () => {
-                const app = new TsFromSwagger(args.configFile, args.settings);
-                await app.generateCode();
-                done();
-            }).to.not.throw();
+            const app = new TsFromSwagger(args.configFile, args.settings);
+            await app.generateCode();
+
+            let comparison = await dircompare.compare(path.join(samplesRoot, `out/${path.basename(file)}`), path.join(samplesRoot, `expected/${path.basename(file)}`), {
+                compareContent: true
+            });
+            if (!comparison.same) {
+                console.log(comparison.diffSet);
+            }
+            // tslint:disable-next-line:no-unused-expression
+            expect(comparison.same).to.be.true;
         }).timeout(10000);
     }
 });

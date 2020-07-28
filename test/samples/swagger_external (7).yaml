@@ -1,0 +1,987 @@
+swagger: '2.0'
+x-default-token: 4c4c444c-v123-4123-s123-4c4c444c4c44
+info:
+  description: >
+    This API allows to get status information of windows and doors, deck lid, rooftop or sunroof and interior lights of connected arik-Benz vehicles remotely.
+
+    Data is categorized into resources and containers for the polling interface.
+    They are defined as follows:
+
+    * *Resource*: A resource is a single information about a vehicle. It's a
+    measurement that consists of a name (also referred to as resource ID), a
+    value, and an associated timestamp. See below for a list and description of
+    all resources that this API provides.
+
+    * *Container*: A container is a set of resources that are defined to group
+    data for a certain use case.
+
+
+    The interface is a ISO 20078-compliant REST endpoint to query the latest data for a vehicle.
+    If the vehicle did not send an update for a resource within 11 hours, the response will be empty.
+
+    ## Resources
+
+    This is an alphabetical list of all resources that the API provides.
+
+    Name | Description | Unit/Range
+
+    ---- | ----------- | ----------
+
+    decklidstatus | Deck lid latch status opened/closed state | false: closed<br>true:
+    open
+
+    doorstatusfrontleft | Status of the front left door | false: closed<br>true:
+    open
+
+    doorstatusfrontright | Status of the front right door | false:
+    closed<br>true: open
+
+    doorstatusrearleft | Status of the rear left door | false: closed<br>true:
+    open
+
+    doorstatusrearright | Status of the rear right door | false: closed<br>true:
+    open
+
+    interiorLightsFront | Front light inside | false: off<br>true:
+    on
+
+    interiorLightsRear | Rear light inside | false:
+    off<br>true: on
+
+    lightswitchposition | Rotary light switch position | 0: auto<br>1: headlights<br>2: sidelight left<br>
+    3: sidelight right<br>4: parking light
+
+    readingLampFrontLeft | Front left reading light inside | false: off<br>true:
+    on
+
+    readingLampFrontRight | Front right reading light inside | false: off<br>true:
+    on
+
+    rooftopstatus | Status of the convertible top opened/closed | 0: unlocked <br>1: open and locked <br>2: closed and locked
+
+    sunroofstatus | Status of the sunroof | 0: Tilt/slide sunroof is
+    closed<br>1: Tilt/slide sunroof is complete open<br>2: Lifting roof is
+    open<br>3: Tilt/slide sunroof is running<br>4: Tilt/slide sunroof in
+    anti-booming position<br>5: Sliding roof in intermediate position<br>6:
+    Lifting roof in intermediate position
+
+    windowstatusfrontleft | Status of the front left window  | 0: window in
+    intermediate position<br>1: window completely opened<br>2: window completely
+    closed<br>3: window airing position<br>4: window intermediate airing
+    position<br>5: window currently running
+
+    windowstatusfrontright | Status of the front right window  | 0: window in
+    intermediate position<br>1: window completely opened<br>2: window completely
+    closed<br>3: window airing position<br>4: window intermediate airing
+    position<br>5: window currently running
+
+    windowstatusrearleft | Status of the rear left window  | 0: window in
+    intermediate position<br>1: window completely opened<br>2: window completely
+    closed<br>3: window airing position<br>4: window intermediate airing
+    position<br>5: window currently running
+
+    windowstatusrearright | Status of the rear right window | 0: window in
+    intermediate position<br>1: window completely opened<br>2: window completely
+    closed<br>3: window airing position<br>4: window intermediate airing
+    position<br>5: window currently running
+  version: '1.0'
+  title: Vehicle Status API
+  contact:
+    name: The open API platform by arik-Benz
+host: api.arik-benz.com
+basePath: /vehicledata_tryout/v1
+schemes:
+  - https
+tags:
+  - name: Container Vehicle Status
+    description: Vehicle Status service for view all Vehicle Status vehicle data points
+  - name: Resources
+    description: Vehicle Status service for view all accessible resources
+  - name: Decklid resource
+    description: Vehicle Status service for view decklid resource
+  - name: Front left door resource
+    description: Vehicle Status service for view front left door resource
+  - name: Front right door resource
+    description: Vehicle Status service for view front right door resource
+  - name: Rear left door resource
+    description: Vehicle Status service for view rear left door resource
+  - name: Rear right door resource
+    description: Vehicle Status service for view rear right door resource
+  - name: Interior front light resource
+    description: Vehicle Status service for view interior front light resource
+  - name: Interior rear light resource
+    description: Vehicle Status service for view interior rear light resource
+  - name: Light switch position resource
+    description: Vehicle Status service for view light switch position resource
+  - name: Front left reading lamp resource
+    description: Vehicle Status service for view front left reading lamp resource
+  - name: Front right reading lamp resource
+    description: Vehicle Status service for view front right reading lamp resource
+  - name: Convertible (roof top) resource
+    description: Vehicle Status service for view convertible resource
+  - name: Sunroof resource
+    description: Vehicle Status service for view sunroof resource
+  - name: Front left windows resource
+    description: Vehicle Status service for view front left windows resource
+  - name: Front right windows resource
+    description: Vehicle Status service for view front right windows resource
+  - name: Rear left windows resource
+    description: Vehicle Status service for view rear left windows resource
+  - name: Rear right windows resource
+    description: Vehicle Status service for view rear right windows resource
+paths:
+  '/vehicles/{vehicleId}/containers/vehiclestatus':
+    get:
+      tags:
+        - Container Vehicle Status
+      summary: >-
+        Returns all resources for the provided 'vehiclestatus', data can be
+        filtered for a certain time range.
+      operationId: getResourcesForContainerIdUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/VehicleStatus'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources':
+    get:
+      tags:
+        - Resources
+      summary: >-
+        Returns all available resources for the provided vehicle identification
+        number.
+      operationId: getAllResourcesForVinUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResourceMetaInfo'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/decklidstatus':
+    get:
+      tags:
+        - Decklid resource
+      summary: >-
+        Returns the latest available resource for the decklid status and vehicle
+        identification number.
+      operationId: getLatestDecklidUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              decklidstatus:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/doorstatusfrontleft':
+    get:
+      tags:
+        - Front left door resource
+      summary: >-
+        Returns the latest available resource for the front left door status and vehicle
+        identification number.
+      operationId: getLatestDoorStatusFrontLeftUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              doorstatusfrontleft:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/doorstatusfrontright':
+    get:
+      tags:
+        - Front right door resource
+      summary: >-
+        Returns the latest available resource for the front right door status and vehicle
+        identification number.
+      operationId: getLatestDoorStatusFrontRightUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              doorstatusfrontright:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/doorstatusrearleft':
+    get:
+      tags:
+        - Rear left door resource
+      summary: >-
+        Returns the latest available resource for the rear left door status and vehicle
+        identification number.
+      operationId: getLatestDoorStatusRearLeftUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              doorstatusrearleft:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/doorstatusrearright':
+    get:
+      tags:
+        - Rear right door resource
+      summary: >-
+        Returns the latest available resource for the rear right door status and vehicle
+        identification number.
+      operationId: getLatestDoorStatusRearRightUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              doorstatusrearright:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/interiorLightsFront':
+    get:
+      tags:
+        - Interior front light resource
+      summary: >-
+        Returns the latest available resource for the interior front lights and vehicle
+        identification number.
+      operationId: getLatestInteriorFrontLightsUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              interiorLightsFront:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/interiorLightsRear':
+    get:
+      tags:
+        - Interior rear light resource
+      summary: >-
+        Returns the latest available resource for the interior rear lights and vehicle
+        identification number.
+      operationId: getLatestInteriorRearLightsUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              interiorLightsRear:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/lightswitchposition':
+    get:
+      tags:
+        - Light switch position resource
+      summary: >-
+        Returns the latest available resource for the light switch position and vehicle
+        identification number.
+      operationId: getLatestLightSwitchPositionUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              lightswitchposition:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/readingLampFrontLeft':
+    get:
+      tags:
+        - Front left reading lamp resource
+      summary: >-
+        Returns the latest available resource for the front left reading lamp and vehicle
+        identification number.
+      operationId: getLatestReadingLampFrontLeftUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              readingLampFrontLeft:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/readingLampFrontRight':
+    get:
+      tags:
+        - Front right reading lamp resource
+      summary: >-
+        Returns the latest available resource for the front right reading lamp and vehicle
+        identification number.
+      operationId: getLatestReadingLampFrontRightUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              readingLampFrontRight:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/rooftopstatus':
+    get:
+      tags:
+        - Convertible (roof top) resource
+      summary: >-
+        Returns the latest available resource for the convertible and vehicle
+        identification number.
+      operationId: getLatestRoofTopStatusUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              rooftopstatus:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/sunroofstatus':
+    get:
+      tags:
+        - Sunroof resource
+      summary: >-
+        Returns the latest available resource for the sunroof and vehicle
+        identification number.
+      operationId: getLatestSunRoofStatusUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              sunroofstatus:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/windowstatusfrontleft':
+    get:
+      tags:
+        - Front left windows resource
+      summary: >-
+        Returns the latest available resource for the front left window status and vehicle
+        identification number.
+      operationId: getLatestWindowStatusFrontLeftUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              windowstatusfrontleft:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/windowstatusfrontright':
+    get:
+      tags:
+        - Front right windows resource
+      summary: >-
+        Returns the latest available resource for the front right window status and vehicle
+        identification number.
+      operationId: getLatestWindowStatusFrontRightUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              windowstatusfrontright:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/windowstatusrearleft':
+    get:
+      tags:
+        - Rear left windows resource
+      summary: >-
+        Returns the latest available resource for the rear left window status and vehicle
+        identification number.
+      operationId: getLatestWindowStatusRearLeftUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              windowstatusrearleft:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/windowstatusrearright':
+    get:
+      tags:
+        - Rear right windows resource
+      summary: >-
+        Returns the latest available resource for the rear right window status and vehicle
+        identification number.
+      operationId: getLatestWindowStatusRearRightUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              windowstatusrearright:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+definitions:
+  Resource:
+    type: object
+    properties:
+      value:
+        type: string
+      timestamp:
+        type: integer
+    title: Resource
+  VehicleStatus:
+    type: object
+    properties:
+      decklidstatus:
+        $ref: '#/definitions/Resource'
+      doorstatusfrontleft:
+        $ref: '#/definitions/Resource'
+      doorstatusfrontright:
+        $ref: '#/definitions/Resource'
+      doorstatusrearleft:
+        $ref: '#/definitions/Resource'
+      doorstatusrearright:
+        $ref: '#/definitions/Resource'
+      interiorLightsFront:
+        $ref: '#/definitions/Resource'
+      interiorLightsRear:
+        $ref: '#/definitions/Resource'
+      lightswitchposition:
+        $ref: '#/definitions/Resource'
+      readingLampFrontLeft:
+        $ref: '#/definitions/Resource'
+      readingLampFrontRight:
+        $ref: '#/definitions/Resource'
+      rooftopstatus:
+        $ref: '#/definitions/Resource'
+      sunroofstatus:
+        $ref: '#/definitions/Resource'
+      windowstatusfrontleft:
+        $ref: '#/definitions/Resource'
+      windowstatusfrontright:
+        $ref: '#/definitions/Resource'
+      windowstatusrearleft:
+        $ref: '#/definitions/Resource'
+      windowstatusrearright:
+        $ref: '#/definitions/Resource'
+    title: VehicleStatus
+  ResourceMetaInfo:
+    type: object
+    properties:
+      href:
+        type: string
+      name:
+        type: string
+      version:
+        type: string
+    title: ResourceMetaInfo
+  ExVeError:
+    type: object
+    properties:
+      exveErrorId:
+        type: string
+      exveErrorMsg:
+        type: string
+      exveErrorRef:
+        type: string
+    title: ExVeError

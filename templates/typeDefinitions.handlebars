@@ -35,11 +35,15 @@
 
 {{#each types}}
     {{#if schema.description}}
+    
     /**
      * {{wrap '     * '  schema.description}}
      */
     {{/if}}
-    {{#if (eq schema.type "array")}}
+    
+    {{#if isPrimitive}}
+    export type {{typeName}} = {{schema.type}};
+    {{else if (eq schema.type "array")}}
     export type {{typeName}} = {{fullTypeName}};
     {{else}}
     export {{../generatedTypes}} {{typeName}}  {

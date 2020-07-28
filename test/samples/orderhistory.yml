@@ -1,0 +1,145 @@
+---
+swagger: "2.0"
+info:
+  version: 1.1.4
+  title: OrderHistory
+  x-ibm-name: orderhistory
+  description: Retrieve list of sales order IDs for a given account to be looked up
+    with the order status API.
+schemes:
+- https
+paths:
+  /customersalesorderhistory/{customerid}/{startdate}/{enddate}/{openonly}:
+    get:
+      tags:
+      - History
+      summary: Retrieves a list of sales order numbers and dates for all sales orders
+        within a date range belonging to a customer id.
+      operationId: History_CustomerSalesOrderHistory
+      parameters:
+      - name: startdate
+        in: path
+        description: 'Begining of date range in ISO 8601 format. For example: 2018-10-31'
+        required: true
+        type: string
+      - name: enddate
+        in: path
+        description: 'End of date range in ISO 8601 format. For example: 2018-10-31'
+        required: true
+        type: string
+      - name: customerid
+        in: path
+        description: CustomerId (customer number) that is on the fake-Key account
+          with which you authenticated in which you want to look up the history
+        required: true
+        type: integer
+        format: int32
+      - name: openonly
+        in: path
+        description: If true will only return open orders
+        required: true
+        type: boolean
+      - $ref: '#/parameters/Authorization'
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SalesOrderHistoryItem'
+      deprecated: false
+      consumes: []
+      produces: []
+  /rootsalesorderhistory/{rootid}/{startdate}/{enddate}/{openonly}:
+    get:
+      tags:
+      - History
+      summary: Retrieves a list of sales order numbers and dates for all sales orders
+        within a date range belonging to a any customer ids under a root id.
+      operationId: History_RootSalesOrderHistory
+      parameters:
+      - name: startdate
+        in: path
+        description: 'Begining of date range in ISO 8601 format. For example: 2018-10-31'
+        required: true
+        type: string
+      - name: enddate
+        in: path
+        description: 'End of date range in ISO 8601 format. For example: 2018-10-31'
+        required: true
+        type: string
+      - name: rootid
+        in: path
+        description: Customer root Id that contains the fake-Key account with which
+          you authenticated in which you want to look up the history
+        required: true
+        type: integer
+        format: int32
+      - name: openonly
+        in: path
+        description: If true will only return open orders
+        required: true
+        type: boolean
+      - $ref: '#/parameters/Authorization'
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SalesOrderHistoryItem'
+      deprecated: false
+definitions:
+  SalesOrderHistoryItem:
+    description: Information pertaining to a single sales order
+    type: object
+    properties:
+      SalesOrderId:
+        format: int32
+        description: The sales order ID
+        type: integer
+      CustomerId:
+        format: int32
+        description: The customer ID associated with the sales order
+        type: integer
+        example: ""
+      DateEntered:
+        description: Date in which the order was entered formatted as MM/dd/yyyy HH:mm:ss
+          tt. Note that in a future release this will be changed to ISO 8601.
+        type: string
+        example: 3/14/2017 12:50:12 PM
+      PurchaseOrder:
+        description: Purchase order if available
+        type: string
+        example: Example Order
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+basePath: /orderhistory/v1
+parameters:
+  Authorization:
+    name: Authorization
+    type: string
+    required: true
+    in: header
+    description: Put OAuth Bearer Token here. Please see <a href="https://api-portal.fakekey.com/security"
+      target="_blank">OAuth 2.0 Documentation</a> page for more info.
+produces:
+- application/xml
+- application/json
+securityDefinitions:
+  Client ID:
+    type: apiKey
+    description: User's Application IBM Client Id
+    in: header
+    name: X-IBM-Client-Id
+security:
+- Client ID: []
+x-ibm-endpoints:
+- endpointUrl: https://api.fakekey.com/services
+  description: Base Gateway API Endpoint
+  type:
+  - production
+  - development
+...

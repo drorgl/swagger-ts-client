@@ -1,0 +1,262 @@
+swagger: '2.0'
+x-default-token: 2c2c222c-e123-4123-v123-2c2c222c2c22
+info:
+  description: >
+    This API allows to determine the electrical status and remaining distance of connected arik-Benz vehicles remotely.
+
+    Data is categorized into resources and containers for the polling interface.
+    They are defined as follows:
+
+    * *Resource*: A resource is a single information about a vehicle. It's a
+    measurement that consists of a name (also referred to as resource ID), a
+    value, and an associated timestamp. See below for a list and description of
+    all resources that this API provides.
+
+    * *Container*: A container is a set of resources that are defined to group
+    data for a certain use case.
+
+
+    The interface is a ISO 20078-compliant REST endpoint to query the latest data for a vehicle.
+    If the vehicle did not send an update for a resource within 11 hours, the response will be empty.
+
+    ## Resources
+
+    This is an alphabetical list of all resources that the API provides.
+
+    Name | Description | Unit/Range
+
+    ---- | ----------- | ----------
+
+    soc | Displayed state of charge for the HV battery | 0..100 %
+
+    rangeelectric | Electric range | 0..2046 km
+
+  version: '1.0'
+  title: Electric Vehicle Status API
+  contact:
+    name: The open API platform by arik-Benz
+host: api.arik-benz.com
+basePath: /vehicledata_tryout/v1
+schemes:
+  - https
+tags:
+  - name: Container Electric Vehicle Status
+    description: Electric Vehicle Status service for view all electric status vehicle data points
+  - name: Resources
+    description: Electric Vehicle service for view all accessible resources
+  - name: State of charge resource
+    description: State of charge service for view state of charge resource
+  - name: Range electric resource
+    description: Electric range service for view electric change resource
+paths:
+  '/vehicles/{vehicleId}/containers/electricvehicle':
+    get:
+      tags:
+        - Container Electric Vehicle Status
+      summary: >-
+        Returns all resources for the provided 'electricvehicle', data can be
+        filtered for a certain time range.
+      operationId: getResourcesForContainerIdUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/EvStatus'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources':
+    get:
+      tags:
+        - Resources
+      summary: >-
+        Returns all available resources for the provided vehicle identification
+        number.
+      operationId: getAllResourcesForVinUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResourceMetaInfo'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/soc':
+    get:
+      tags:
+        - State of charge resource
+      summary: >-
+        Returns the latest available state of charge resource for the vehicle
+        identification number.
+      operationId: getLatestStateOfChargeUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              soc:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/rangeelectric':
+    get:
+      tags:
+        - Range electric resource
+      summary: >-
+        Returns the latest available electric range resource for the vehicle
+        identification number.
+      operationId: getLatestRangeElectricUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              rangeelectric:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+definitions:
+  Resource:
+    type: object
+    properties:
+      value:
+        type: string
+      timestamp:
+        type: integer
+    title: Resource
+  EvStatus:
+    type: object
+    properties:
+      soc:
+        $ref: '#/definitions/Resource'
+      rangeelectric:
+        $ref: '#/definitions/Resource'
+    title: EvStatus
+  ResourceMetaInfo:
+    type: object
+    properties:
+      href:
+        type: string
+      name:
+        type: string
+      version:
+        type: string
+    title: ResourceMetaInfo
+  ExVeError:
+    type: object
+    properties:
+      exveErrorId:
+        type: string
+      exveErrorMsg:
+        type: string
+      exveErrorRef:
+        type: string
+    title: ExVeError

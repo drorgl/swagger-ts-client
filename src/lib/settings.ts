@@ -2,23 +2,23 @@ import * as fs from "fs";
 import * as path from "path";
 import * as process from "process";
 import * as Swagger from "swagger-schema-official";
-import {logger} from "./logger";
+import { logger } from "./logger";
 import { changeCaseHelper } from "./renderer/helpers";
-import {registerHandleBarsHelpers} from "./renderer/renderer";
-import {ISwaggerProvider} from "./swaggerProvider/swaggerProvider";
-import  {deepMerge} from "./utils/deepMerge";
+import { registerHandleBarsHelpers } from "./renderer/renderer";
+import { ISwaggerProvider } from "./swaggerProvider/swaggerProvider";
+import { deepMerge } from "./utils/deepMerge";
 
-export type HttpVerb= "get"|"put"|"post"|"delete"|"options"|"head"|"patch";
+export type HttpVerb = "get" | "put" | "post" | "delete" | "options" | "head" | "patch";
 
-export type GeneratedType  = "type"|"interface"|"class";
+export type GeneratedType = "type" | "interface" | "class";
 
-export type IOperationsTransformFn = (operationName: string, httpVerb: HttpVerb , operation: Swagger.Operation) => string;
+export type IOperationsTransformFn = (operationName: string, httpVerb: HttpVerb, operation: Swagger.Operation) => string;
 
 export type IGroupFileNameTransformFn = (groupName: string) => string;
 
 export type IHandleBarHelper = (...any) => string;
 
-export interface ISettings{
+export interface ISettings {
     swaggerFile?: string;
     swaggerProvider?: ISwaggerProvider;
     templateHelpers?: {
@@ -46,7 +46,7 @@ export interface ISettings{
 
 }
 
-export const settings: ISettings  = {
+export const settings: ISettings = {
     type: {
         typeAliases: {
             Int32: "number",
@@ -66,44 +66,48 @@ export const settings: ISettings  = {
     },
 };
 
-function operationsGroupFilenameFn(groupName){
+function operationsGroupFilenameFn(groupName) {
     return `${groupName}.ts`;
 }
 
-function operationsGroupNameTransformFn(operationName, httpVerb , operation){
-    if (operation.tags && operation.tags.length ){
-        return changeCaseHelper(`${operation.tags[0]}HttpSvc`, "pascal");
+function operationsGroupNameTransformFn(operationName, httpVerb, operation) {
+    if (operation.tags && operation.tags.length) {
+        return changeCaseHelper(`${operation.tags[0]}HttpSvc`, "pascalCase");
     }
-    else{
+    else {
         return settings.operations.ungroupedOperationsName;
     }
 }
-function operationsNameTransformFn(operationName: string, httpVerb: HttpVerb , operation: Swagger.Operation){
-   let name = (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName;
+function operationsNameTransformFn(operationName: string, httpVerb: HttpVerb, operation: Swagger.Operation) {
+    let name = (operation.operationId) ? operation.operationId.replace(`${operation.tags && operation.tags.length ? operation.tags[0] : ""}_`, httpVerb) : httpVerb + "_" + operationName;
 
-   return name.replace(/[^a-zA-Z0-9]/g, "_").replace(/_+/g, "_");
+    return name
+        .replace(/encodeURIComponent/g, "_")
+        .replace(/[^a-zA-Z0-9]/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/_$/g, "");
 }
 
-export function loadSettings(configFile: string= null, override: ISettings= {}){
-    if (configFile){
+export function loadSettings(configFile: string = null, override: ISettings = {}) {
+    if (configFile) {
         logger.info(`Loading configuration from ${configFile}`);
     }
     const configPath = path.resolve(process.cwd(), configFile || "ts-client.config.js");
     let settingsFromFile = {};
-    if (fs.existsSync(configPath)){
+    if (fs.existsSync(configPath)) {
         logger.info(`Loading configuration from ${configPath}`);
         settingsFromFile = require(configPath);
-    }else if (configFile){
+    } else if (configFile) {
         throw new Error(`could not find config file ${configPath}`);
     }
 
     deepMerge(settings, settingsFromFile, override);
 
     // overrides
-    if (override.swaggerFile && settings.swaggerProvider){
+    if (override.swaggerFile && settings.swaggerProvider) {
         settings.swaggerProvider = null;
     }
-    if (override.swaggerProvider && settings.swaggerFile){
+    if (override.swaggerProvider && settings.swaggerFile) {
         settings.swaggerFile = null;
     }
 

@@ -1,0 +1,364 @@
+swagger: '2.0'
+x-default-token: 3c3c333c-l123-4123-s123-3c3c333c3c33
+info:
+  description: >
+    This API allows access
+    to vehicle lock status data of arik-Benz vehicles remotely.
+
+    Data is categorized into resources and containers for the polling interface.
+    They are defined as follows:
+
+    * *Resource*: A resource is a single information about a vehicle. It's a
+    measurement that consists of a name (also referred to as resource ID), a
+    value, and an associated timestamp. See below for a list and description of
+    all resources that this API provides.
+
+    * *Container*: A container is a set of resources that are defined to group
+    data for a certain use case.
+
+
+    The interface is a ISO 20078-compliant REST endpoint to query the latest data for a vehicle.
+    If the vehicle did not send an update for a resource within 11 hours, the response will be empty.
+
+    ## Resources
+
+    This is an alphabetical list of all resources that the API provides.
+
+    Name | Description | Unit/Range
+
+    ---- | ----------- | ----------
+
+    doorlockstatusdecklid | 	Lock status of the deck lid | false: locked<br>true: unlocked
+
+    doorlockstatusvehicle | Vehicle lock status | 0: vehicle unlocked<br>1:
+    vehicle internal locked<br>2: vehicle external locked<br>3: vehicle
+    selective unlocked
+
+    doorlockstatusgas | Status of gas tank door lock | false: locked<br>true: unlocked
+
+    positionHeading | Vehicle heading position | 0..359.9 degrees
+  version: '1.0'
+  title: Vehicle Lock Status API
+  contact:
+    name: The open API platform by arik-Benz
+host: api.arik-benz.com
+basePath: /vehicledata_tryout/v1
+schemes:
+  - https
+tags:
+  - name: Container Vehicle Lock Status
+    description: Vehiclse Status service for view all Vehicle Status vehicle data points
+  - name: Resources
+    description: Vehicls Lock Status service for view all accessible resources
+  - name: Door Lock Status Resource
+    description: Door lock status service for view door lock resource
+  - name: Door Lock Deck Lid Status Resource
+    description: Deck lid lock status service for view deck lid lock resource
+  - name: Door Lock Gas Status Resource
+    description: Door gas lock status service for view door gas resource
+  - name: Position Heading Resource
+    description: Position heading service for view position heading resource
+paths:
+  '/vehicles/{vehicleId}/containers/vehiclelockstatus':
+    get:
+      tags:
+        - Container Vehicle Lock Status
+      summary: >-
+        Returns all resources for the container 'vehiclelockstatus', data can be
+        filtered for a certain time range.
+      operationId: getResourcesForContainerIdUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/VehicleLockStatus'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources':
+    get:
+      tags:
+        - Resources
+      summary: >-
+        Returns all available resources for the provided vehicle identification
+        number.
+      operationId: getAllResourcesForVinUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResourceMetaInfo'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/doorlockstatusvehicle':
+    get:
+      tags:
+        - Door Lock Status Resource
+      summary: >-
+        Returns the latest available door lock status resource for the provided vehicle
+        identification number.
+      operationId: getLatestDoorLockStatusUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              doorlockstatusvehicle:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/doorlockstatusdecklid':
+    get:
+      tags:
+        - Door Lock Deck Lid Status Resource
+      summary: >-
+        Returns the latest available door lock deck lid status resource for the provided vehicle
+        identification number.
+      operationId: getLatestDoorLockStatusdeckLidUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              doorlockstatusdecklid:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/doorlockstatusgas':
+    get:
+      tags:
+        - Door Lock Gas Status Resource
+      summary: >-
+        Returns the latest available door lock status gas resource for the provided vehicle
+        identification number.
+      operationId: getLatestDoorLockStatusGasUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              doorlockstatusgas:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+  '/vehicles/{vehicleId}/resources/positionHeading':
+    get:
+      tags:
+        - Position Heading Resource
+      summary: >-
+        Returns the latest available position heading resource for the provided vehicle
+        identification number.
+      operationId: getLatestPositionHeadingUsingGET
+      produces:
+        - 'application/json;charset=utf-8'
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle identification number
+          required: true
+          type: string
+          x-example: WDB111111ZZZ22222
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              positionHeading:
+                $ref: '#/definitions/Resource'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ExVeError'
+        '404':
+          description: Resource not Found
+        '429':
+          description: The service received too many requests in a given amount of time.
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ExVeError'
+      deprecated: false
+definitions:
+  Resource:
+    type: object
+    properties:
+      value:
+        type: string
+      timestamp:
+        type: integer
+    title: Resource
+  VehicleLockStatus:
+    type: object
+    properties:
+      doorlockstatusvehicle:
+        $ref: '#/definitions/Resource'
+      doorlockstatusdecklid:
+        $ref: '#/definitions/Resource'
+      doorlockstatusgas:
+        $ref: '#/definitions/Resource'
+      positionHeading:
+        $ref: '#/definitions/Resource'
+    title: VehicleLockStatus
+  ResourceMetaInfo:
+    type: object
+    properties:
+      href:
+        type: string
+      name:
+        type: string
+      version:
+        type: string
+    title: ResourceMetaInfo
+  ExVeError:
+    type: object
+    properties:
+      exveErrorId:
+        type: string
+      exveErrorMsg:
+        type: string
+      exveErrorRef:
+        type: string
+    title: ExVeError
