@@ -37,7 +37,7 @@
   "dependencies": {
     "change-case": "3.1.0",
     "commander": "6.0.0",
-    "handlebars": "4.1.1",
+    "handlebars": "4.5.3",
     "js-yaml": "^3.13.1",
     "mkdirp": "0.5.1",
     "request": "2.88.0",
