@@ -6,6 +6,8 @@
       "noImplicitAny": false,
       "outDir": "./bin/",
       "sourceMap": true,
+      "declaration": true,
+      "removeComments": false,
       "target": "es2016",
       "resolveJsonModule": true
     },

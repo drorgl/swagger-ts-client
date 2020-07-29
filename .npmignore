@@ -2,8 +2,10 @@ src
 .vscode
 tsconfig.json
 tslint.json
-*.map
-*.ts
 .travis.yml
 drorgl-swagger-ts-client*
 test
+docs
+coverage
+.nycrc
+.nyc_output
