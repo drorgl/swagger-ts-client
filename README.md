@@ -19,6 +19,9 @@ This is a forked project of [swagger-ts-client](https://github.com/kjayasa/swagg
 - add word-wrap to template
 - add header support
 - add cli parameter for setting the ungrouped APIs
+- support streams for binary responses
+- support type aliases for primitives
+
 
 ### NOTE: This is a toy project - use as your own risk!
 
